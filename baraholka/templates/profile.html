@@ -1,0 +1,26 @@
+{% extends "bootstrap/base.html" %}
+
+{% block html_attribs %} lang="en"{% endblock %}
+
+{% block metas %}
+    <meta charset="utf-8">
+{% endblock %}
+
+{% block content %}
+<h2> Ну это типа твой профиль кароче</h2>
+<br>
+<p> Имя: {{user.firstname}}</p>
+<p> Фамилия: {{user.lastname}}</p>
+<p> Email: {{user.email}}</p>
+<p> Номер телефона: {{user.phone}}</p>
+{% if user.moderator %}
+<p> Ты модератор!<p>
+{% endif %}
+<p>
+    <form method="post">
+        <div><button type="submit" name="logout">Разлогиниться</button></div>
+    </form>
+</p>
+<br>
+<a href="/">На главную</a>
+{% endblock %}

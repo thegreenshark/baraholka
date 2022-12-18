@@ -1,0 +1,39 @@
+{% extends "bootstrap/base.html" %}
+
+{% block html_attribs %} lang="en"{% endblock %}
+
+{% block metas %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+{% endblock %}
+
+{% block title %}Register{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='assets/bootstrap/css/bootstrap.min.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='assets/fonts/ionicons.min.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='assets/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+{% endblock %}
+
+{% block content %}
+<section class="login-clean">
+    <form method="post" style="height: 710px;" oninput='password2.setCustomValidity(password2.value != password.value ? "Пароли не совпадают" : ""); phone.setCustomValidity(/^\+?[0-9]{11}$/.test(phone.value) ? "" : "Укажите телефон в формате +79876543210 или 89876543210" )'>
+        <h2 class="sr-only">Login Form</h2>
+        <div class="illustration" style="padding-bottom: 0px;height: 129.844px;margin-bottom: 0px;padding-top: 0px;"><i class="icon ion-ios-navigate" style="height: -24px;"></i></div>
+        <div style="height: 68px;">
+            <p style="width: 240px;margin-left: auto;text-align: center;margin-right: auto;padding-right: 0px;height: 56px;">{{text|safe}}</p>
+        </div>
+        <div class="form-group"><input class="form-control" type="text" name="firstname" placeholder="Имя" ></div>
+        <div class="form-group"><input class="form-control" type="text" name="lastname" placeholder="Фамилия" ></div>
+        <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email" ></div>
+        <div class="form-group"><input class="form-control" type="text" name="phone" placeholder="Телефон" ></div>
+        <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Пароль" ></div>
+        <div class="form-group"><input class="form-control" type="password" name="password2" placeholder="Повторите пароль" ></div>
+        <div class="form-group"><button class="btn btn-primary btn-block" type="submit" style="margin-right: 39px;">Регистрация</button></div>
+        <a class="forgot" href="/login/">Уже зарегистрированы? Войдите в аккаунт</a>
+    </form>
+</section>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+{% endblock %}

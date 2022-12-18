@@ -1,0 +1,2 @@
+from baraholka import app
+
