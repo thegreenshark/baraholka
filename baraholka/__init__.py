@@ -17,30 +17,6 @@ dbCur = dbCon.cursor()
 app.secret_key = 'idk just some random shit i guess'
 
 
-# class User():
-#     def __init__(self, id:str, email:str, password:str, name:str):
-#         self.id = str(id)
-#         self.email = str(email)
-#         self.password = str(password)
-#         self.name = str(name)
-
-#         self.is_authenticated_ = False
-#         self.is_active_ = True
-#         self.is_anonymous_ = False
-
-#     def get_id(self):
-#         return self.id
-#     @property
-#     def is_authenticated(self):
-#         return self.is_authenticated_
-#     @property
-#     def is_active(self):
-#         return self.is_active_
-#     @property
-#     def is_anonymous(self):
-#         return self.is_anonymous_
-
-
 class User(UserMixin):
     id = None
     email = None
@@ -50,18 +26,6 @@ class User(UserMixin):
     phone = None
     isModerator = None
 
-    # def __init__(self, id:str, email:str, password:str, name:str):
-    #     self.id_ = str(id)
-    #     self.email_ = str(email)
-    #     self.password_ = str(password)
-    #     self.name_ = str(name)
-
-    #     self.is_authenticated_ = False
-    #     self.is_active_ = True
-    #     self.is_anonymous_ = False
-
-    #def get_id(self = None):
-        #return User.id
     def get_id(self = None):
         return User.id
 
@@ -106,18 +70,5 @@ class User(UserMixin):
             User.isModerator = result[6]
 
             return User
-
-
-    # def loadMyself(self):
-    #     User.id = self.id_
-    #     User.email = self.email_
-    #     User.password = self.password_
-    #     User.name = self.name_
-
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.loadById(user_id) #TODO переместить декоратор сразу к loadById
-
 
 import baraholka.routes
