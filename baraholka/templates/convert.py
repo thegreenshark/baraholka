@@ -1,8 +1,8 @@
 #преобразует html, созданный в bootstrap studio, в формат flask-bootstrap
 
-INPUT_FILE_NAME = 'test.html'
-
 import os
+import sys
+
 
 def replace(string, replaceIn, replaceOut):
     modifiedString = string.replace(replaceIn, replaceOut)
@@ -24,10 +24,30 @@ simpleReplacements = [
 
 
 
+inputFileName=''
+if len(sys.argv) > 1:
+    inputFileName = sys.argv[1]
+
+    try:
+        inFile = open(inputFileName, 'r',  encoding='utf-8')
+    except FileNotFoundError:
+        print(f'ERROR: file "{inputFileName}" not found')
+        exit()
+
+    string = inFile.read()
+    inFile.close()
+
+    fileName = inputFileName
+    dotPos = inputFileName.rfind('.')
+    if dotPos != -1:
+        fileName = inputFileName[:dotPos]
+        
+else:
+    print(f'ERROR: input file not specified')
+    exit()
 
 
-
-inFile = open(INPUT_FILE_NAME, 'r',  encoding='utf-8')
+inFile = open(inputFileName, 'r',  encoding='utf-8')
 string = inFile.read()
 inFile.close()
 
@@ -63,7 +83,7 @@ while 1:
         break
     pathEndPos -= 1
 
-    scriptsString += '    ' + string[scriptStartPos:pathStartPos] + '{{url_for(\'.static\', filename=\'' + string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:scriptEndPos+1] + '\n'
+    scriptsString += '    ' + string[scriptStartPos:pathStartPos] + '{{url_for(\'.static\', filename=\'' + f'{fileName}/' + string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:scriptEndPos+1] + '\n'
     string = string[:scriptStartPos] + string[scriptEndPos+1:]
 
     searchStartPos = scriptStartPos
@@ -93,7 +113,7 @@ while 1:
         break
     pathEndPos -= 1
 
-    linksString += '    ' + string[linkStartPos:pathStartPos] + '{{url_for(\'.static\', filename=\'' + string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:linkEndPos+1] + '\n'
+    linksString += '    ' + string[linkStartPos:pathStartPos] + '{{url_for(\'.static\', filename=\''  + f'{fileName}/' + string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:linkEndPos+1] + '\n'
     string = string[:linkStartPos] + string[linkEndPos+1:]
 
     searchStartPos = linkStartPos
@@ -148,8 +168,8 @@ while 1:
     pathEndPos -= 1
 
 
-    string = string[:pathStartPos] + '{{url_for(\'.static\', filename=\'' + string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:]
-    searchStartPos = pathEndPos + len('{{url_for(\'.static\', filename=\'') + len('\')}}')
+    string = string[:pathStartPos] + '{{url_for(\'.static\', filename=\''  + f'{fileName}/'+ string[pathStartPos:pathEndPos+1] + '\')}}' + string[pathEndPos+1:]
+    searchStartPos = pathEndPos + len('{{url_for(\'.static\', filename=\'' + f'{fileName}/') + len('\')}}')
 
 
 
@@ -163,14 +183,14 @@ string = '{% extends "bootstrap/base.html" %}\n\n' + string
 
 
 
-OUT_FILE_NAME = INPUT_FILE_NAME
+OUT_FILE_NAME = inputFileName
 
 rename = ''
-dotPos = INPUT_FILE_NAME.rfind('.')
+dotPos = inputFileName.rfind('.')
 if dotPos == -1:
-    rename = INPUT_FILE_NAME + '_'
+    rename = inputFileName + '_'
 else :
-    rename = INPUT_FILE_NAME[:dotPos] + '_' + INPUT_FILE_NAME[dotPos:]
+    rename = inputFileName[:dotPos] + '_' + inputFileName[dotPos:]
 
 
 os.rename(INPUT_FILE_NAME, rename)
