@@ -101,3 +101,17 @@ def profilePost():
 
     return redirect('/')
 
+
+
+
+
+
+@app.route('/main/')
+def mainPage_():
+    text=''
+    searchEntry = request.args.get('search')
+    if searchEntry is not None:
+        text = f'Searched for "{searchEntry}"'
+
+    return render_template('main_.html', text = text)
+
