@@ -10,8 +10,6 @@ class Advert():
             self.imagePath = '/static/index/assets/img/nophoto.png'
         else:
             self.imagePath = '/' + imagePath
-            #print(imagePath)
-            #print(url_for('.static', filename=imagePath))
 
         try:
             img = Image.open('baraholka' + self.imagePath)
@@ -22,41 +20,69 @@ class Advert():
                 self.imageH = 185
                 self.imageW = img.width * 185 / img.height
         except:
+            self.imageW = 270
+            self.imageH = 185
             self.imagePath = ''
+
+
+class AdvertBig():
+    def __init__(self, name, description, price, category, address, creation_time, userFirstname, userPhone, imagesPaths):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.category = category
+        self.address = address
+        self.creation_time = creation_time
+        self.userFirstname = userFirstname
+        self.userPhone = userPhone
+
+
+        for imagePath in imagesPaths:
+            if imagePath == '':
+                self.imagePath = '/static/index/assets/img/nophoto.png'
+            else:
+                self.imagePath = '/' + imagePath
+
+        try:
+            img = Image.open('baraholka' + self.imagePath)
+            if img.width > img.height:
+                self.imageW = 270
+                self.imageH = img.height * 270 / img.width
+            else:
+                self.imageH = 185
+                self.imageW = img.width * 185 / img.height
+        except:
+            self.imageW = 270
+            self.imageH = 185
+            self.imagePath = ''
+
 
 
 class PageButton():
     def __init__(self, state, link, symbol):
         self.state = state
-        if state == 'disabled':
-            self.a = ''
-        else:
-            self.a = f'href={link}'
         self.symbol = symbol
 
+        if link == '':
+            self.href = ''
+        else:
+            self.href = f'href={link}'
 
 
 
 
 
 
-@app.route('/')
-@app.route('/<int:page>')
-def mainPage(page = None):
-    if page is not None:
-        if page == 1:
-            return redirect('/')
-    else:
-        page = 1
 
-    numberOfPages = 2
-    advertsPerPage = 18
 
-    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY creation_time desc OFFSET {(page - 1) * advertsPerPage} LIMIT {advertsPerPage * numberOfPages}")
-    result = dbCur.fetchall()
+#в result должны быть id, name, price
+def getAdvertsGrid(result, desiredAdvertsPerPage):
     advertsGrid = []
 
-    for i in range(0, advertsPerPage, 3):
+    if result is None:
+        return advertsGrid
+
+    for i in range(0, desiredAdvertsPerPage, 3):
         if i >= len(result):
             break
         row = []
@@ -81,30 +107,113 @@ def mainPage(page = None):
         if len(row) > 0:
             advertsGrid.append(row)
 
+    return advertsGrid
 
 
-    if len(result) <= advertsPerPage:
-        numberOfNextPages = 0
+
+
+
+
+def getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages):
+    if result is None:
+        return [PageButton('disabled', '', '<'), PageButton('active', '#', str(page)), PageButton('disabled', '', '>')]
+
+    foundAdvertsNumber = len(result) #сколько найдено объявлений (на этой странице и далее)
+
+    if foundAdvertsNumber < desiredAdvertsPerPage:
+        advertsAfterThisPage = 0
     else:
-        numberOfNextPages = math.ceil((len(result) - advertsPerPage) / advertsPerPage)
+        advertsAfterThisPage = foundAdvertsNumber - desiredAdvertsPerPage
 
+    pagesAfterThis = int(math.ceil(advertsAfterThisPage / desiredAdvertsPerPage)) #сколько можно сформировать страниц после этой
+    pagesBeforeThis = page - 1 #сколько страниц до этой
+    totalNumberOfPages = page + pagesAfterThis #общее количество страниц
+
+    #кнопка влево
     if page == 1:
-        leftButton = PageButton('disabled', '', '«')
+        prevButton = PageButton('disabled', '', '<')
     else:
-        leftButton = PageButton('', str(page-1), '«')
+        prevButton = PageButton('', str(page - 1), '<')
 
-
-    if numberOfNextPages == 0:
-        rightButton = PageButton('disabled', '', '»')
+    #кнопка вправо
+    if pagesAfterThis == 0:
+        nextButton = PageButton('disabled', '', '>')
     else:
-        rightButton = PageButton('', str(page+1), '»')
-
-    middleButton = PageButton('active', '#', str(page))
+        nextButton = PageButton('', str(page + 1), '>')
 
 
-    pageButtons = [leftButton, middleButton, rightButton]
 
-    return render_template('index.html', advertsGrid = advertsGrid, pageButtons = pageButtons)
+    #количество кнопок навигации
+    if totalNumberOfPages < desiredNumberOfPages:
+        numberOfPageButtons = desiredNumberOfPages
+    else:
+        numberOfPageButtons = desiredNumberOfPages
+
+
+    #кнопка текушей страницы посередине (если четное количество кнопок, то "слева от середины")
+    thisPageButtonIndex = int(math.ceil(numberOfPageButtons / 2)) - 1
+    if pagesBeforeThis < thisPageButtonIndex:
+        thisPageButtonIndex = pagesBeforeThis
+
+
+    numberOfPageButtonsBeforeThis = thisPageButtonIndex #сколько кнопок страниц слева от текущей
+    numberOfPageButtonsAfterThis = (numberOfPageButtons - 1) - thisPageButtonIndex #сколько кнопок страниц справа от текущей
+
+    #если до текушей страницы меньше страниц, чем мы хотим кнопок, то убираем кнопки ДО и если можно, добавляем ПОСЛЕ
+    if pagesBeforeThis < numberOfPageButtonsBeforeThis:
+        diff = numberOfPageButtonsBeforeThis - pagesBeforeThis
+        numberOfPageButtonsBeforeThis -= diff
+
+        if numberOfPageButtonsAfterThis + diff < pagesAfterThis:
+            numberOfPageButtonsAfterThis += diff
+        else:
+            numberOfPageButtonsAfterThis = pagesAfterThis
+
+    #зеркально
+    if pagesAfterThis < numberOfPageButtonsAfterThis:
+        diff = numberOfPageButtonsAfterThis - pagesAfterThis
+        numberOfPageButtonsAfterThis -= diff
+
+        if numberOfPageButtonsBeforeThis + diff < pagesBeforeThis:
+            numberOfPageButtonsBeforeThis += diff
+        else:
+            numberOfPageButtonsBeforeThis = pagesBeforeThis
+
+
+    #формируем массив кнопок
+    pageButtons = [prevButton]
+    for pageNum in range(page - numberOfPageButtonsBeforeThis, page + numberOfPageButtonsAfterThis + 1):
+        if pageNum == page:
+            pageButtons.append(PageButton('active', '#', str(pageNum)))
+        else:
+            pageButtons.append(PageButton('', str(pageNum), str(pageNum)))
+    pageButtons.append(nextButton)
+
+    return pageButtons
+
+
+
+@app.route('/')
+@app.route('/<int:page>')
+def mainPage(page = None):
+    if page is not None:
+        if page == 1:
+            return redirect('/')
+    else:
+        page = 1
+
+    searchEntry = request.args.get('search')
+    if searchEntry is not None:
+        pass
+
+
+    desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
+    desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
+
+    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY creation_time desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
+    result = dbCur.fetchall()
+
+    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
 
 
 
@@ -268,7 +377,7 @@ def newAdvertPost():
 
 
 
-#TODO это кринге, надо в функцию вынести или типа того, чтобы не дублировать код
+
 @app.route('/myadverts/')
 @app.route('/myadverts/<int:page>')
 def myAdvertsPage(page = None):
@@ -281,59 +390,40 @@ def myAdvertsPage(page = None):
     else:
         page = 1
 
-    numberOfPages = 2
-    advertsPerPage = 18
 
-    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY creation_time desc OFFSET {(page - 1) * advertsPerPage} LIMIT {advertsPerPage * numberOfPages}")
+    searchEntry = request.args.get('search')
+    if searchEntry is not None:
+        pass
+
+
+    desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
+    desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
+
+    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY creation_time desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
-    advertsGrid = []
 
-    for i in range(0, advertsPerPage, 3):
-        if i >= len(result):
-            break
-        row = []
-
-        for j in range(3):
-            if i + j >= len(result):
-                break
-
-            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
-            result2 = dbCur.fetchone()
-            imagePath = ''
-            if result2 is not None:
-                imagePath = result2[0]
-
-            if result[i + j][2] is None:
-                price = 'Бесплатно'
-            else:
-                price = result[i + j][2].split(',')[0] + ' ₽'
-
-            row.append(Advert(result[i + j][1], price, imagePath))
-
-        if len(row) > 0:
-            advertsGrid.append(row)
+    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
 
 
 
-    if len(result) <= advertsPerPage:
-        numberOfNextPages = 0
-    else:
-        numberOfNextPages = math.ceil((len(result) - advertsPerPage) / advertsPerPage)
-
-    if page == 1:
-        leftButton = PageButton('disabled', '', '«')
-    else:
-        leftButton = PageButton('', str(page-1), '«')
 
 
-    if numberOfNextPages == 0:
-        rightButton = PageButton('disabled', '', '»')
-    else:
-        rightButton = PageButton('', str(page+1), '»')
-
-    middleButton = PageButton('active', '#', str(page))
 
 
-    pageButtons = [leftButton, middleButton, rightButton]
 
-    return render_template('index.html', advertsGrid = advertsGrid, pageButtons = pageButtons)
+
+@app.route('/advert/')
+@app.route('/advert/<uuid:advertdId>')
+def advertPage(advertdId = None):
+    if advertdId == None:
+        return redirect('/')
+
+    dbCur.execute(f"SELECT * FROM advert WHERE id = '{advertdId}'")
+    result = dbCur.fetchone()
+
+    if result == None:
+        return redirect('/')
+
+    # advert = result
+
+    # return render_template('advert.hmtl', advert = )
