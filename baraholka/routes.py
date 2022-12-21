@@ -47,9 +47,10 @@ def mainPage(page = None):
             result2 = dbCur.fetchone()
             imagePath = ''
             if result is not None:
-                imagePath = result2
+                imagePath = result2[0]
 
             price = result[i + j][2].split(',')[0]
+            print(imagePath)
             row.append(Advert(result[i + j][1], price, imagePath))
 
         if len(row) > 0:
@@ -168,7 +169,11 @@ def profilePage():
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-    return render_template('profile.html', user = current_user)
+
+    dbCur.execute(f"SELECT COUNT(*) FROM advert WHERE user_id = '{current_user.id}'")
+    advCount = dbCur.fetchone()[0]
+
+    return render_template('profile.html', user = current_user, advCount = advCount)
 
 
 @app.route('/profile/', methods = ['post'])
@@ -181,20 +186,47 @@ def profilePost():
 
 
 
-@app.route('/test/')
-def uploadTest():
-    return render_template('test.html')
 
 
-@app.route('/test/', methods = ['post'])
-def uploadPost():
-    if 'file' in request.files:
-        file = request.files['file']
 
+@app.route('/newadvert/')
+def newAdvertPage():
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    return render_template('newAdvert.html')
+
+
+@app.route('/newadvert/', methods = ['post'])
+def newAdvertPost():
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    name = request.form.get('name')
+    description = request.form.get('description')
+    address = request.form.get('address')
+    category = request.form.get('category')
+    price = request.form.get('price')
+
+    uploadedFiles = request.files.getlist("file")
+
+
+    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.id}', '{description}', {price}, '{category}', '{address}', 'ok') RETURNING id")
+    dbCon.commit()
+    result = dbCur.fetchone()
+    advertId = result[0]
+
+    for file in uploadedFiles:
         if file.filename != '':
             fileType = file.filename.rsplit('.', 1)[1].lower()
             if fileType in ALLOWED_FILE_TYPES:
-                file.save(app.config['UPLOAD_FOLDER'] + str(uuid.uuid4()) + '.' + fileType) #сохраняем под уникальным именем
+                fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
+                file.save('baraholka/static/userFiles/' + fileName)
+
+            dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
+
+    if len(uploadedFiles) > 0:
+        dbCon.commit()
 
 
-    return redirect(request.url)
+    return redirect('/')

@@ -1,0 +1,62 @@
+{% extends "bootstrap/base.html" %}
+
+{% block metas %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+{% endblock %}
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/bootstrap/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/Footer-Basic-Footer-Basic.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/Navigation-with-Search-Navigation-with-Search.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/untitled-2.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/untitled-3.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='new_adv/css/untitled.css')}}">
+{% endblock %}
+{% block scripts %}
+    <script src="{{url_for('.static', filename='new_adv/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('.static', filename='new_adv/bootstrap/js/bootstrap.min.js')}}"></script>
+    {{super()}}
+{% endblock %}
+
+{% block html_attribs %} lang="en" {% endblock %}
+
+
+
+
+    {% block title %}newAdvert{% endblock %}
+
+
+
+
+
+
+
+
+
+
+{% block content %}
+    <div style="margin-top: 0px;padding-top: 75px;">
+        <section class="login-clean" style="background: rgb(255,255,255);padding-top: 0px;padding-bottom: 75px;">
+            <form method="post" enctype = "multipart/form-data" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 1000px;">
+                <div class="illustration" style="margin-top: 0px;font-size: 14px;margin-bottom: 20px;padding-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;font-size: 14px;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;margin-bottom: 0px;" src="{{url_for('.static', filename='new_adv/img/test.png')}}"></a></div>
+                <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" style="font-size: 16px;background: #efefef;" required></div>
+                <div class="form-group"><textarea class="form-control" style="font-size: 16px;background: #efefef;color: rgb(80, 94, 108);height: 125px;max-width: 920px;" placeholder="Описание" name="description"></textarea></div>
+                <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" style="font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required>
+                <select class="form-control" style="display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 38px;" name="category" required>
+                        <option value="1" selected="">Категория 1</option>
+                        <option value="2">Категория 2</option>
+                        <option value="3">Категория 3</option>
+                    </select><input class="form-control" type="number" name="price" placeholder="Цена" style="font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0" required></div>
+                <div class="form-group">
+                    <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" name="file" style="font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="">
+                </div>
+                <div class="form-group text-center"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Создать объявление</button></div>
+            </form>
+        </section>
+    </div>
+
+
+{% endblock %}
+
