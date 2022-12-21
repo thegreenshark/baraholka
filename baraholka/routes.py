@@ -322,7 +322,11 @@ def newAdvertPage():
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-    return render_template('newAdvert.html')
+    searchEntry = request.args.get('search')
+    if searchEntry is not None:
+        pass
+
+    return render_template('advcreate.html')
 
 
 @app.route('/newadvert/', methods = ['post'])

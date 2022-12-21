@@ -38,29 +38,44 @@
 
 
 {% block content %}
-    <div style="margin-top: 0px;padding-top: 75px;">
-        <section class="login-clean" style="background: rgb(255,255,255);padding-top: 0px;padding-bottom: 75px;">
-            <form method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 600px;" enctype="multipart/form-data">
-                <div class="illustration" style="margin-top: 0px;font-size: 14px;margin-bottom: 20px;padding-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;font-size: 14px;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;margin-bottom: 0px;" src="{{url_for('.static', filename='profile/assets/img/baraholkaBlack.png')}}"></a></div>
-                <div class="form-group" style="margin-bottom: 0px;">
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Имя:</p>
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.firstname}}</p>
+    <div style="background: #eeeeee;">
+        <div style="background: #ffffff;box-shadow: 0px 0px 10px 0px rgba(80,94,108,0.71);margin-bottom: 1px;">
+            <div class="container" style="padding-left: 0px;padding-right: 0px;width: 1000px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-lg-12 col-md-12" style="padding-left: 0px;padding-right: 0px;margin-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;" src="{{url_for('.static', filename='profile/assets/img/baraholkaBlack.png')}}"></a><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 12px;" href="#">Категории</a>
+                        <form class="form-inline" target="_self" style="background: rgba(255,255,255,0);padding-right: 0px;padding-left: 0px;display: inline-block;height: 38px;margin-left: 15px;padding-top: 0px;">
+                            <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="{{url_for('.static', filename='profile/assets/img/search-icon.png')}}"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 275px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 16px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;"></div>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 32px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 20px;" href="/login">Профиль</a>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0px;">
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Фамилия:</p>
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.lastname}}</p>
-                </div>
-                <div class="form-group" style="margin-bottom: 0px;">
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Email:</p>
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.email}}</p>
-                </div>
-                <div class="form-group" style="margin-bottom: 0px;">
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Номер телефона:</p>
-                    <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.phone}}</p>
-                </div>
-                <div class="form-group text-center"><button class="btn btn-default barahloka-btn" type="submit" name="logout" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;">Выйти</button><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 64px;" href="/myadverts/">Мои объявления</a></div>
-            </form>
-        </section>
+            </div>
+        </div>
+        <div style="margin-top: 0px;padding-top: 0px;">
+            <section class="login-clean" style="background: rgba(255,255,255,0);padding-bottom: 65px;padding-top: 65px;">
+                <form method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 600px;" enctype="multipart/form-data">
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Имя:</p>
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.firstname}}</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Фамилия:</p>
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.lastname}}</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Email:</p>
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.email}}</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;margin-right: 10px;font-weight: bold;">Номер телефона:</p>
+                        <p style="font-size: 18px;color: rgb(0,0,0);display: inline-block;">{{user.phone}}</p>
+                    </div>
+                    <div class="form-group text-center" style="margin-bottom: 0px;"><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;" href="#">Редактировать</a><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 50px;" href="/myadverts/">Мои объявления</a><button class="btn btn-default barahloka-btn" type="submit" name="logout" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 50px;">Выйти</button></div>
+                </form>
+            </section>
+        </div>
+        <footer class="text-center" style="background: #ffffff;padding-top: 10px;padding-bottom: 10px;">
+            <p style="margin-bottom: 0px;margin-top: 0px;font-size: 15px;">Baraholka 2022</p>
+        </footer>
     </div>
 
 
