@@ -7,6 +7,14 @@ class Advert():
         self.price = price
         self.imagePath = imagePath
 
+        img = Image.open('baraholka/' + imagePath)
+        if img.width > img.height:
+            self.imageW = 270
+            self.imageH = img.height * 270 / img.width
+        else:
+            self.imageH = 185
+            self.imageW = img.width * 185 / img.height
+
 class PageButton():
     def __init__(self, state, link, symbol):
         self.state = state

@@ -7,6 +7,8 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 import math
+from PIL import Image
+
 
 ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}
 
