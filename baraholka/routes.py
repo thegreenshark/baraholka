@@ -105,7 +105,7 @@ def loginPost():
     result = dbCur.fetchone()
 
     if result is None:
-        return render_template('login.html', text = 'Неверный email или пароль', prefilledEmail = email)
+        return render_template('login.html', errorMsg = 'Неверный email или пароль', prefilledEmail = email)
     else:
         User.loadById(result[0])
         login_user(User)
@@ -136,7 +136,7 @@ def registerPost():
         return render_template('blank.html', text = 'Ошибка')
 
     if password != password2:
-        return render_template('register.html', text = 'Пароли не совпадают')
+        return render_template('register.html', text = 'Пароли не совпадают', prefilledFirstname = firstname, prefilledLastname = lastname, prefilledEmail = email, prefilledPhone = phone)
 
     #в общем то можно забить, если сделать хорошие проверки в форме
     #TODO если неправильный формат имени
@@ -146,7 +146,7 @@ def registerPost():
     dbCur.execute(f"SELECT * FROM appuser WHERE email = '{email}'")
     result = dbCur.fetchone()
     if result is not None:
-        return render_template('register.html', text = 'Пользователь с таким email уже зарегистрирован. Воспользуйтесь <a href=/login/> формой входа </a>')
+        return render_template('register.html', errorMsg = 'Пользователь с таким email уже зарегистрирован', prefilledFirstname = firstname, prefilledLastname = lastname, prefilledEmail = email, prefilledPhone = phone)
 
     dbCur.execute(f"INSERT INTO appuser (email, password, firstname, lastname, phone) VALUES ('{email}', '{password}', '{firstname}', '{lastname}', '{phone}') returning id")
     dbCon.commit()

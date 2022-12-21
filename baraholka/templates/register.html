@@ -1,39 +1,58 @@
 {% extends "bootstrap/base.html" %}
 
-{% block html_attribs %} lang="en"{% endblock %}
-
 {% block metas %}
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 {% endblock %}
-
-{% block title %}Register{% endblock %}
-
 {% block styles %}
-{{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='assets/bootstrap/css/bootstrap.min.css')}}">
-<link rel="stylesheet" href="{{url_for('.static', filename='assets/fonts/ionicons.min.css')}}">
-<link rel="stylesheet" href="{{url_for('.static', filename='assets/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/bootstrap/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/Footer-Basic-Footer-Basic.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/Navigation-with-Search-Navigation-with-Search.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/untitled-2.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/untitled-3.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='login/assets/css/untitled.css')}}">
 {% endblock %}
+{% block scripts %}
+    <script src="{{url_for('.static', filename='login/assets/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('.static', filename='login/assets/bootstrap/js/bootstrap.min.js')}}"></script>
+    {{super()}}
+{% endblock %}
+
+{% block html_attribs %} lang="en" {% endblock %}
+
+
+
+
+    {% block title %}login{% endblock %}
+
+
+
+
+
+
+
+
 
 {% block content %}
-<section class="login-clean">
-    <form method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Пароли не совпадают" : ""); phone.setCustomValidity(/^\+?[0-9]{11}$/.test(phone.value) ? "" : "Укажите телефон в формате +79876543210 или 89876543210" )'>
-        <h2 class="sr-only">Login Form</h2>
-        <div class="illustration" style="padding-bottom: 0px;height: 129.844px;margin-bottom: 0px;padding-top: 0px;"><i class="icon ion-ios-navigate" style="height: -24px;"></i></div>
-        <div style="height: 68px;">
-            <p style="width: 240px;margin-left: auto;text-align: center;margin-right: auto;padding-right: 0px;height: 56px;">{{text|safe}}</p>
-        </div>
-        <div class="form-group"><input class="form-control" type="text" name="firstname" placeholder="Имя" required></div>
-        <div class="form-group"><input class="form-control" type="text" name="lastname" placeholder="Фамилия" required></div>
-        <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email" required></div>
-        <div class="form-group"><input class="form-control" type="text" name="phone" placeholder="Телефон" required></div>
-        <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Пароль" required></div>
-        <div class="form-group"><input class="form-control" type="password" name="password2" placeholder="Повторите пароль" required></div>
-        <div class="form-group"><button class="btn btn-primary btn-block" type="submit" style="margin-right: 39px;">Регистрация</button></div>
-        <a class="forgot" href="/login/">Уже зарегистрированы? Войдите в аккаунт</a>
-    </form>
-</section>
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <div style="margin-top: 0px;padding-top: 75px;">
+        <section class="login-clean" style="background: rgb(255,255,255);padding-top: 0px;padding-bottom: 75px;">
+            <form method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Пароли не совпадают" : ""); phone.setCustomValidity(/^\+?[0-9]{11}$/.test(phone.value) ? "" : "Укажите телефон в формате +79876543210 или 89876543210" )' style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);">
+                <div class="illustration" style="margin-top: 0px;font-size: 14px;margin-bottom: 20px;padding-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;font-size: 14px;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;margin-bottom: 20px;" src="{{url_for('.static', filename='login/assets/img/test.png')}}"></a>
+                    <p style="color: rgb(255,255,255);background: #ff3030;font-size: 16px;">{{errorMsg}}</p>
+                </div>
+                <div class="form-group"><input class="form-control" type="text" name="firstname" placeholder="Имя" value="{{prefilledFirstname}}" style="font-size: 16px;background: #efefef;" required></div>
+                <div class="form-group"><input class="form-control" type="text" name="lastname" placeholder="Фамилия" value="{{prefilledLastname}}" style="font-size: 16px;background: #efefef;" required></div>
+                <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email" value="{{prefilledEmail}}" style="font-size: 16px;background: #efefef;" required></div>
+                <div class="form-group"><input class="form-control" type="text" name="phone" placeholder="Номер телефона" value="{{prefilledPhone}}" style="font-size: 16px;background: #efefef;" required></div>
+                <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Пароль" style="font-size: 16px;background: #efefef;color: rgb(80, 94, 108);" required></div>
+                <div class="form-group"><input class="form-control" type="password" name="password2" placeholder="Повторите пароль" style="font-size: 16px;background: #efefef;color: rgb(80, 94, 108);" required></div>
+                <div class="form-group text-center"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 240px;">Зарегистрироваться</button></div><a class="forgot" href="/login">Уже зарегистрированы? Войдите в аккаунт</a>
+            </form>
+        </section>
+    </div>
+
+
 {% endblock %}
+
