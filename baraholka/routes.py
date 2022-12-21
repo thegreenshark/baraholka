@@ -1,8 +1,86 @@
 from baraholka import *
 
+
+class Advert():
+    def __init__(self, name, price, imagePath = None):
+        self.name = name
+        self.price = price
+        self.imagePath = imagePath
+
+class PageButton():
+    def __init__(self, state, link, symbol):
+        self.state = state
+        if state == 'disabled':
+            self.a = ''
+        else:
+            self.a = f'href={link}'
+        self.symbol = symbol
+
+
+
 @app.route('/')
-def mainPage():
-    return render_template('index.html')
+@app.route('/<int:page>')
+def mainPage(page = None):
+    if page is not None:
+        if page == 1:
+            return redirect('/')
+    else:
+        page = 1
+
+    numberOfPages = 2
+    advertsPerPage = 18
+
+    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY creation_time desc OFFSET {(page - 1) * advertsPerPage} LIMIT {advertsPerPage * numberOfPages}")
+    result = dbCur.fetchall()
+    advertsGrid = []
+
+    for i in range(0, advertsPerPage, 3):
+        if i >= len(result):
+            break
+        row = []
+
+        for j in range(3):
+            if i + j >= len(result):
+                break
+
+            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
+            result2 = dbCur.fetchone()
+            imagePath = ''
+            if result is not None:
+                imagePath = result2
+
+            price = result[i + j][2].split(',')[0]
+            row.append(Advert(result[i + j][1], price, imagePath))
+
+        if len(row) > 0:
+            advertsGrid.append(row)
+
+
+
+
+
+    if len(result) <= advertsPerPage:
+        numberOfNextPages = 0
+    else:
+        numberOfNextPages = math.ceil((len(result) - advertsPerPage) / advertsPerPage)
+
+    if page == 1:
+        leftButton = PageButton('disabled', '', '«')
+    else:
+        leftButton = PageButton('', str(page-1), '«')
+
+
+    if numberOfNextPages == 0:
+        rightButton = PageButton('disabled', '', '»')
+    else:
+        rightButton = PageButton('', str(page+1), '»')
+
+    middleButton = PageButton('active', '#', str(page))
+
+
+    pageButtons = [leftButton, middleButton, rightButton]
+
+    return render_template('index.html', advertsGrid = advertsGrid, pageButtons = pageButtons)
 
 
 
@@ -31,7 +109,7 @@ def loginPost():
     else:
         User.loadById(result[0])
         login_user(User)
-        return redirect('/profile/')
+        return redirect('/')
 
 
 
@@ -103,15 +181,20 @@ def profilePost():
 
 
 
+@app.route('/test/')
+def uploadTest():
+    return render_template('test.html')
 
 
+@app.route('/test/', methods = ['post'])
+def uploadPost():
+    if 'file' in request.files:
+        file = request.files['file']
 
-@app.route('/main/')
-def mainPage_():
-    text=''
-    searchEntry = request.args.get('search')
-    if searchEntry is not None:
-        text = f'Searched for "{searchEntry}"'
+        if file.filename != '':
+            fileType = file.filename.rsplit('.', 1)[1].lower()
+            if fileType in ALLOWED_FILE_TYPES:
+                file.save(app.config['UPLOAD_FOLDER'] + str(uuid.uuid4()) + '.' + fileType) #сохраняем под уникальным именем
 
-    return render_template('main_.html', text = text)
 
+    return redirect(request.url)

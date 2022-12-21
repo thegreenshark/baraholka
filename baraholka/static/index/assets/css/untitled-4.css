@@ -1,0 +1,6 @@
+.advText:focus, .advText:hover {
+  text-decoration: none !important;
+  font-weight: bold !important;
+  color: #00a5db !important;
+}
+

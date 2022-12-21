@@ -3,8 +3,17 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 import datetime
 import psycopg2
+from werkzeug.utils import secure_filename
+import os
+import uuid
+import math
+
+ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}
+
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'baraholka/static/userFiles/'
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 #10 мб
 bootstrap = Bootstrap(app)
 
 login_manager = LoginManager()
