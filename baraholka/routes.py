@@ -2,59 +2,69 @@ from baraholka import *
 
 
 class Advert():
-    def __init__(self, name, price, imagePath = ''):
+    def __init__(self, id, name, price, imagePath = ''):
         self.name = name
         self.price = price
-
-        if imagePath == '':
-            self.imagePath = '/static/index/assets/img/nophoto.png'
-        else:
-            self.imagePath = '/' + imagePath
-
-        try:
-            img = Image.open('baraholka' + self.imagePath)
-            if img.width > img.height:
-                self.imageW = 270
-                self.imageH = img.height * 270 / img.width
-            else:
-                self.imageH = 185
-                self.imageW = img.width * 185 / img.height
-        except:
-            self.imageW = 270
-            self.imageH = 185
-            self.imagePath = ''
+        self.link = '/advert/' + id
+        self.image = AdvImage(imagePath, 270, 185)
 
 
 class AdvertBig():
-    def __init__(self, name, description, price, category, address, creation_time, userFirstname, userPhone, imagesPaths):
+    def __init__(self, name, description, price, category, address, datetime:datetime.datetime, userFirstname, userPhone, imagesPaths):
         self.name = name
         self.description = description
-        self.price = price
+        self.price = formatPrice(price)
         self.category = category
         self.address = address
-        self.creation_time = creation_time
-        self.userFirstname = userFirstname
-        self.userPhone = userPhone
+        self.datetime = f'Выложено {datetime.day}.{datetime.month}.{datetime.year} в {datetime.hour}:{datetime.minute}'
+        self.user_phone = userFirstname + '⠀✆' + userPhone
+
+        self.images = []
+        self.indicators = []
+        for i in range(len(imagesPaths)):
+            self.images.append(AdvImage(imagesPaths[i], 720, 400))
+            self.indicators.append(CarouselIndicator('#carousel-1', i))
+
+        if len(self.images) == 0:
+            self.images.append(AdvImage('static/index/assets/img/nophoto.png', 720, 400))
+            self.indicators.append(CarouselIndicator(0))
+
+        self.images[0].active = 'active'
+        self.indicators[0].active = 'active'
 
 
-        for imagePath in imagesPaths:
-            if imagePath == '':
-                self.imagePath = '/static/index/assets/img/nophoto.png'
-            else:
-                self.imagePath = '/' + imagePath
+class AdvImage():
+    def __init__(self, path, maxW, maxH, active = ''):
+        if path == '':
+            self.path = '/static/index/assets/img/nophoto.png'
+        else:
+            self.path = '/' + path
 
         try:
-            img = Image.open('baraholka' + self.imagePath)
-            if img.width > img.height:
-                self.imageW = 270
-                self.imageH = img.height * 270 / img.width
+            img = Image.open('baraholka' + self.path)
+            scaledMaxW = img.width
+            sclaedMaxH = maxH * scaledMaxW / maxW
+
+            if img.height <= sclaedMaxH:
+                self.w = maxW
+                self.h = img.height * maxW / img.width
             else:
-                self.imageH = 185
-                self.imageW = img.width * 185 / img.height
+                self.h = maxH
+                self.w = img.width * maxH / img.height
         except:
-            self.imageW = 270
-            self.imageH = 185
-            self.imagePath = ''
+            self.w = maxW
+            self.h = maxH
+            self.path = ''
+
+        self.active = active
+
+
+
+
+class CarouselIndicator():
+    def __init__(self, slideTo, active = ''):
+        self.slideTo = slideTo
+        self.active = active
 
 
 
@@ -72,6 +82,12 @@ class PageButton():
 
 
 
+
+def formatPrice(price):
+    if price is None:
+        return 'Бесплатно'
+    else:
+        return price.split(',')[0] + ' ₽'
 
 
 
@@ -97,12 +113,7 @@ def getAdvertsGrid(result, desiredAdvertsPerPage):
             if result2 is not None:
                 imagePath = result2[0]
 
-            if result[i + j][2] is None:
-                price = 'Бесплатно'
-            else:
-                price = result[i + j][2].split(',')[0] + ' ₽'
-
-            row.append(Advert(result[i + j][1], price, imagePath))
+            row.append(Advert(result[i + j][0], result[i + j][1], formatPrice(result[i + j][2]), imagePath))
 
         if len(row) > 0:
             advertsGrid.append(row)
@@ -363,6 +374,7 @@ def newAdvertPost():
     advertId = result[0]
 
     for file in uploadedFiles:
+        print(f'file "{file}"')
         if file.filename != '':
             fileType = file.filename.rsplit('.', 1)[1].lower()
             if fileType in ALLOWED_FILE_TYPES:
@@ -422,12 +434,30 @@ def advertPage(advertdId = None):
     if advertdId == None:
         return redirect('/')
 
-    dbCur.execute(f"SELECT * FROM advert WHERE id = '{advertdId}'")
+    dbCur.execute(f"SELECT name, description, price, category, address, creation_time, user_id FROM advert WHERE id = '{advertdId}'")
     result = dbCur.fetchone()
 
     if result == None:
         return redirect('/')
 
-    # advert = result
+    dbCur.execute(f"SELECT firstname, phone FROM appuser WHERE id = '{result[6]}'")
+    result2 = dbCur.fetchone()
 
-    # return render_template('advert.hmtl', advert = )
+    dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{advertdId}'")
+    result3 = dbCur.fetchall()
+
+    imagesPaths = []
+    for r in result3:
+        imagesPaths.append(r[0])
+
+    advert = AdvertBig(result[0], result[1], result[2], result[3], result[4], result[5], result2[0], result2[1], imagesPaths)
+
+
+
+    if current_user.id == result[6]:
+        showControlButtons = True
+    else:
+        showControlButtons = False
+
+
+    return render_template('adv.html', advert = advert, showControlButtons = showControlButtons)

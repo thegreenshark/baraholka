@@ -1,0 +1,99 @@
+{% extends "bootstrap/base.html" %}
+
+{% block metas %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+{% endblock %}
+{% block scripts %}
+    {{super()}}
+    <script src="{{url_for('.static', filename='adv/assets/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('.static', filename='adv/assets/bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.3.1/js/swiper.jquery.min.js"></script>
+    <script src="{{url_for('.static', filename='adv/assets/js/Simple-Slider.js')}}"></script>
+{% endblock %}
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/bootstrap/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/Contact-Form-Clean-Contact-Form-Clean.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/Footer-Basic-Footer-Basic.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.3.1/css/swiper.min.css">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/Navigation-with-Search-Navigation-with-Search.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/Simple-Slider-Simple-Slider.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/untitled-2.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/untitled-3.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/untitled.css')}}">
+{% endblock %}
+
+
+{% block html_attribs %} lang="en" {% endblock %}
+
+
+
+
+    {% block title %}advert{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% block content %}
+    <div style="background: #eeeeee;">
+        <div style="background: #ffffff;box-shadow: 0px 0px 10px 0px rgba(80,94,108,0.71);margin-bottom: 1px;">
+            <div class="container" style="padding-left: 0px;padding-right: 0px;width: 1000px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-lg-12 col-md-12" style="padding-left: 0px;padding-right: 0px;margin-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;" src="{{url_for('.static', filename='adv/assets/img/baraholkaBlack.png')}}"></a><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 12px;" href="#">Категории</a>
+                        <form class="form-inline" target="_self" style="background: rgba(255,255,255,0);padding-right: 0px;padding-left: 0px;display: inline-block;height: 38px;margin-left: 15px;padding-top: 0px;">
+                            <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="{{url_for('.static', filename='adv/assets/img/search-icon.png')}}"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 275px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 16px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;"></div>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 32px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 20px;" href="/login">Профиль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 0px;padding-top: 0px;">
+            <section class="login-clean" style="background: rgba(255,255,255,0);padding-bottom: 65px;padding-top: 35px;">
+                <form method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.71);max-width: 1000px;width: 800px;" enctype="multipart/form-data">
+                    <div class="form-group" style="margin-bottom: 20px;height: 400px;max-height: 400px;width: 720px;max-width: 720px;">
+                        <div class="carousel slide" data-ride="carousel" id="carousel-1" data-interval="0">
+                            <div class="carousel-inner">
+                                {% for image in advert.images %}
+                                <div class="item {{image.active}} text-center" style="width: 720px;max-width: 720px;height: 400px;max-height: 400px;"><div class = "text-center"><img src="{{image.path}}" alt="Slide Image" style="height: {{image.h}}px;max-height: 400px;width: {{image.w}}px;max-width: 720px;"></div></div>
+                                {% endfor %}
+                            </div>
+                            <div><a class="left carousel-control" href="#carousel-1" role="button" data-slide="prev" style="background: rgba(255,255,255,0);"><i class="glyphicon glyphicon-chevron-left"></i><span class="sr-only">Previous</span></a><a class="right carousel-control" href="#carousel-1" role="button" data-slide="next" style="background: rgba(255,255,255,0);"><i class="glyphicon glyphicon-chevron-right"></i><span class="sr-only">Next</span></a></div>
+                            <ol class="carousel-indicators">
+                                {% for indicator in advert.indicators %}
+                                <li data-target="#carousel-1" data-slide-to="{{indicator.slideTo}}" class="{{indicator.active}}"></li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 60px;padding-right: 60px;margin-bottom: 25px;">
+                        <p style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;margin-right: 0px;">{{advert.name}}</p>
+                        <p style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;margin-right: 0px;">{{advert.price}}</p>
+                        <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;margin-bottom: 25px;">{{advert.datetime}}</p>
+                        <p style="font-size: 16px;color: rgb(0,0,0);margin-right: 0px;margin-bottom: 20px;">{{advert.description}}</p>
+                        <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 0px;">{{advert.address}}</p>
+                        <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 50px;">{{advert.user_phone}}</p>
+                    </div>
+                    {% if showControlButtons %}<div class="form-group text-center" style="margin-bottom: -1px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;">Редактировать</button><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 143px;" href="/myadverts/">Снять с продажи</a></div> {% endif %}
+                </form>
+            </section>
+        </div>
+    </div>
+    <footer class="text-center" style="background: #ffffff;padding-top: 10px;padding-bottom: 10px;">
+        <p style="margin-bottom: 0px;margin-top: 0px;font-size: 15px;">Baraholka 2022</p>
+    </footer>
+
+
+
+
+{% endblock %}
+

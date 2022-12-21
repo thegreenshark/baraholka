@@ -15,7 +15,7 @@ ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'baraholka/static/userFiles/'
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 #10 мб
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #32 мб
 bootstrap = Bootstrap(app)
 
 login_manager = LoginManager()
