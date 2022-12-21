@@ -2,18 +2,28 @@ from baraholka import *
 
 
 class Advert():
-    def __init__(self, name, price, imagePath = None):
+    def __init__(self, name, price, imagePath = ''):
         self.name = name
         self.price = price
-        self.imagePath = imagePath
 
-        img = Image.open('baraholka/' + imagePath)
-        if img.width > img.height:
-            self.imageW = 270
-            self.imageH = img.height * 270 / img.width
+        if imagePath == '':
+            self.imagePath = '/static/index/assets/img/nophoto.png'
         else:
-            self.imageH = 185
-            self.imageW = img.width * 185 / img.height
+            self.imagePath = '/' + imagePath
+            #print(imagePath)
+            #print(url_for('.static', filename=imagePath))
+
+        try:
+            img = Image.open('baraholka' + self.imagePath)
+            if img.width > img.height:
+                self.imageW = 270
+                self.imageH = img.height * 270 / img.width
+            else:
+                self.imageH = 185
+                self.imageW = img.width * 185 / img.height
+        except:
+            self.imagePath = ''
+
 
 class PageButton():
     def __init__(self, state, link, symbol):
@@ -23,6 +33,10 @@ class PageButton():
         else:
             self.a = f'href={link}'
         self.symbol = symbol
+
+
+
+
 
 
 
@@ -54,17 +68,18 @@ def mainPage(page = None):
             dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
             result2 = dbCur.fetchone()
             imagePath = ''
-            if result is not None:
+            if result2 is not None:
                 imagePath = result2[0]
 
-            price = result[i + j][2].split(',')[0]
-            print(imagePath)
+            if result[i + j][2] is None:
+                price = 'Бесплатно'
+            else:
+                price = result[i + j][2].split(',')[0] + ' ₽'
+
             row.append(Advert(result[i + j][1], price, imagePath))
 
         if len(row) > 0:
             advertsGrid.append(row)
-
-
 
 
 
@@ -177,11 +192,7 @@ def profilePage():
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-
-    dbCur.execute(f"SELECT COUNT(*) FROM advert WHERE user_id = '{current_user.id}'")
-    advCount = dbCur.fetchone()[0]
-
-    return render_template('profile.html', user = current_user, advCount = advCount)
+    return render_template('profile.html', user = current_user)
 
 
 @app.route('/profile/', methods = ['post'])
@@ -219,6 +230,20 @@ def newAdvertPost():
     uploadedFiles = request.files.getlist("file")
 
 
+    if price != '':
+        try:
+            priceFloat = float(price.replace(',', '.'))
+        except: #если цена как-то неправильно написана
+            return render_template('blank.html', text = 'Ошибка')
+
+    #если цена не указана, или указана нулевая, записываем NULL
+    if price == '' or priceFloat == 0:
+        price = 'NULL'
+
+    else:
+        price = price.replace('.', ',')
+        price = "'" + price + "'"
+
     dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.id}', '{description}', {price}, '{category}', '{address}', 'ok') RETURNING id")
     dbCon.commit()
     result = dbCur.fetchone()
@@ -238,3 +263,77 @@ def newAdvertPost():
 
 
     return redirect('/')
+
+
+
+
+
+#TODO это кринге, надо в функцию вынести или типа того, чтобы не дублировать код
+@app.route('/myadverts/')
+@app.route('/myadverts/<int:page>')
+def myAdvertsPage(page = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if page is not None:
+        if page == 1:
+            return redirect('/myadverts/')
+    else:
+        page = 1
+
+    numberOfPages = 2
+    advertsPerPage = 18
+
+    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY creation_time desc OFFSET {(page - 1) * advertsPerPage} LIMIT {advertsPerPage * numberOfPages}")
+    result = dbCur.fetchall()
+    advertsGrid = []
+
+    for i in range(0, advertsPerPage, 3):
+        if i >= len(result):
+            break
+        row = []
+
+        for j in range(3):
+            if i + j >= len(result):
+                break
+
+            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
+            result2 = dbCur.fetchone()
+            imagePath = ''
+            if result2 is not None:
+                imagePath = result2[0]
+
+            if result[i + j][2] is None:
+                price = 'Бесплатно'
+            else:
+                price = result[i + j][2].split(',')[0] + ' ₽'
+
+            row.append(Advert(result[i + j][1], price, imagePath))
+
+        if len(row) > 0:
+            advertsGrid.append(row)
+
+
+
+    if len(result) <= advertsPerPage:
+        numberOfNextPages = 0
+    else:
+        numberOfNextPages = math.ceil((len(result) - advertsPerPage) / advertsPerPage)
+
+    if page == 1:
+        leftButton = PageButton('disabled', '', '«')
+    else:
+        leftButton = PageButton('', str(page-1), '«')
+
+
+    if numberOfNextPages == 0:
+        rightButton = PageButton('disabled', '', '»')
+    else:
+        rightButton = PageButton('', str(page+1), '»')
+
+    middleButton = PageButton('active', '#', str(page))
+
+
+    pageButtons = [leftButton, middleButton, rightButton]
+
+    return render_template('index.html', advertsGrid = advertsGrid, pageButtons = pageButtons)
