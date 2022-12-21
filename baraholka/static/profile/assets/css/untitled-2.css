@@ -1,0 +1,14 @@
+.barahloka-btn.active, .barahloka-btn:active {
+  background-color: #0095c6 !important;
+  /*border-radius: 18px !important;*/
+  border-style: none !important;
+  border: none !important;
+}
+
+.baraholka-btn.focus, .baraholka-btn:focus {
+}
+
+.baraholka-btn.focus, .baraholka-btn:focus {
+  border: none !important;
+}
+

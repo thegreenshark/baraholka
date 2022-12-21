@@ -168,7 +168,7 @@ def registerPost():
     User.loadById(result[0])
     login_user(User)
 
-    return redirect('/profile/')
+    return redirect('/')
 
 
 
