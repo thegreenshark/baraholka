@@ -16,7 +16,7 @@ class AdvertBig():
         self.price = formatPrice(price)
         self.category = category
         self.address = address
-        self.datetime = f'Выложено {datetime.day}.{datetime.month}.{datetime.year} в {datetime.hour}:{datetime.minute}'
+        self.datetime = f'{datetime.day}.{datetime.month}.{datetime.year} в {datetime.hour}:{datetime.minute}'
         self.user_phone = userFirstname + '⠀✆' + userPhone
 
         self.images = []
@@ -221,7 +221,7 @@ def mainPage(page = None):
     desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
     desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
 
-    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY creation_time desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
+    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY datetime desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
 
     return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
@@ -337,7 +337,16 @@ def newAdvertPage():
     if searchEntry is not None:
         pass
 
-    return render_template('advcreate.html')
+
+    dbCur.execute(f"SELECT name FROM category ORDER BY name")
+    result = dbCur.fetchall()
+    #TODO если none?
+
+    categories = []
+    for r in result:
+        categories.append(r[0])
+
+    return render_template('advcreate.html', categories = categories)
 
 
 @app.route('/newadvert/', methods = ['post'])
@@ -368,7 +377,7 @@ def newAdvertPost():
         price = price.replace('.', ',')
         price = "'" + price + "'"
 
-    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.id}', '{description}', {price}, '{category}', '{address}', 'ok') RETURNING id")
+    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.get_id()}', '{description}', {price}, '{category}', '{address}', 'ok') RETURNING id")
     dbCon.commit()
     result = dbCur.fetchone()
     advertId = result[0]
@@ -415,7 +424,7 @@ def myAdvertsPage(page = None):
     desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
     desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
 
-    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY creation_time desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
+    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY datetime desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
 
     return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
@@ -434,7 +443,7 @@ def advertPage(advertdId = None):
     if advertdId == None:
         return redirect('/')
 
-    dbCur.execute(f"SELECT name, description, price, category, address, creation_time, user_id FROM advert WHERE id = '{advertdId}'")
+    dbCur.execute(f"SELECT name, description, price, category, address, datetime, user_id FROM advert WHERE id = '{advertdId}'")
     result = dbCur.fetchone()
 
     if result == None:
@@ -454,7 +463,7 @@ def advertPage(advertdId = None):
 
 
 
-    if current_user.id == result[6]:
+    if current_user.get_id() == result[6]:
         showControlButtons = True
     else:
         showControlButtons = False
