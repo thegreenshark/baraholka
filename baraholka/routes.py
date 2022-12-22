@@ -1,230 +1,11 @@
-from baraholka import *
-
-
-class Advert():
-    def __init__(self, id, name, price, imagePath = ''):
-        self.name = name
-        self.price = price
-        self.link = '/advert/' + id
-        self.image = AdvImage(imagePath, 270, 185)
-
-
-class AdvertBig():
-    def __init__(self, name, description, price, category, address, datetime:datetime.datetime, userFirstname, userPhone, imagesPaths):
-        self.name = name
-        self.description = description
-        self.price = formatPrice(price)
-        self.category = category
-        self.address = address
-        self.datetime = f'{datetime.day}.{datetime.month}.{datetime.year} в {datetime.hour}:{datetime.minute}'
-        self.user_phone = userFirstname + '⠀✆' + userPhone
-
-        self.images = []
-        self.indicators = []
-        for i in range(len(imagesPaths)):
-            self.images.append(AdvImage(imagesPaths[i], 720, 400))
-            self.indicators.append(CarouselIndicator('#carousel-1', i))
-
-        if len(self.images) == 0:
-            self.images.append(AdvImage('static/index/assets/img/nophoto.png', 720, 400))
-            self.indicators.append(CarouselIndicator(0))
-
-        self.images[0].active = 'active'
-        self.indicators[0].active = 'active'
-
-
-class AdvImage():
-    def __init__(self, path, maxW, maxH, active = ''):
-        if path == '':
-            self.path = '/static/index/assets/img/nophoto.png'
-        else:
-            self.path = '/' + path
-
-        try:
-            img = Image.open('baraholka' + self.path)
-            scaledMaxW = img.width
-            sclaedMaxH = maxH * scaledMaxW / maxW
-
-            if img.height <= sclaedMaxH:
-                self.w = maxW
-                self.h = img.height * maxW / img.width
-            else:
-                self.h = maxH
-                self.w = img.width * maxH / img.height
-        except:
-            self.w = maxW
-            self.h = maxH
-            self.path = ''
-
-        self.active = active
-
-
-
-
-class CarouselIndicator():
-    def __init__(self, slideTo, active = ''):
-        self.slideTo = slideTo
-        self.active = active
-
-
-
-class PageButton():
-    def __init__(self, state, link, symbol):
-        self.state = state
-        self.symbol = symbol
-
-        if link == '':
-            self.href = ''
-        else:
-            self.href = f'href={link}'
-
-
-
-
-
-
-def formatPrice(price):
-    if price is None:
-        return 'Бесплатно'
-    else:
-        return price.split(',')[0] + ' ₽'
-
-
-
-#в result должны быть id, name, price
-def getAdvertsGrid(result, desiredAdvertsPerPage):
-    advertsGrid = []
-
-    if result is None:
-        return advertsGrid
-
-    for i in range(0, desiredAdvertsPerPage, 3):
-        if i >= len(result):
-            break
-        row = []
-
-        for j in range(3):
-            if i + j >= len(result):
-                break
-
-            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
-            result2 = dbCur.fetchone()
-            imagePath = ''
-            if result2 is not None:
-                imagePath = result2[0]
-
-            row.append(Advert(result[i + j][0], result[i + j][1], formatPrice(result[i + j][2]), imagePath))
-
-        if len(row) > 0:
-            advertsGrid.append(row)
-
-    return advertsGrid
-
-
-
-
-
-
-def getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages):
-    if result is None:
-        return [PageButton('disabled', '', '<'), PageButton('active', '#', str(page)), PageButton('disabled', '', '>')]
-
-    foundAdvertsNumber = len(result) #сколько найдено объявлений (на этой странице и далее)
-
-    if foundAdvertsNumber < desiredAdvertsPerPage:
-        advertsAfterThisPage = 0
-    else:
-        advertsAfterThisPage = foundAdvertsNumber - desiredAdvertsPerPage
-
-    pagesAfterThis = int(math.ceil(advertsAfterThisPage / desiredAdvertsPerPage)) #сколько можно сформировать страниц после этой
-    pagesBeforeThis = page - 1 #сколько страниц до этой
-    totalNumberOfPages = page + pagesAfterThis #общее количество страниц
-
-    #кнопка влево
-    if page == 1:
-        prevButton = PageButton('disabled', '', '<')
-    else:
-        prevButton = PageButton('', str(page - 1), '<')
-
-    #кнопка вправо
-    if pagesAfterThis == 0:
-        nextButton = PageButton('disabled', '', '>')
-    else:
-        nextButton = PageButton('', str(page + 1), '>')
-
-
-
-    #количество кнопок навигации
-    if totalNumberOfPages < desiredNumberOfPages:
-        numberOfPageButtons = desiredNumberOfPages
-    else:
-        numberOfPageButtons = desiredNumberOfPages
-
-
-    #кнопка текушей страницы посередине (если четное количество кнопок, то "слева от середины")
-    thisPageButtonIndex = int(math.ceil(numberOfPageButtons / 2)) - 1
-    if pagesBeforeThis < thisPageButtonIndex:
-        thisPageButtonIndex = pagesBeforeThis
-
-
-    numberOfPageButtonsBeforeThis = thisPageButtonIndex #сколько кнопок страниц слева от текущей
-    numberOfPageButtonsAfterThis = (numberOfPageButtons - 1) - thisPageButtonIndex #сколько кнопок страниц справа от текущей
-
-    #если до текушей страницы меньше страниц, чем мы хотим кнопок, то убираем кнопки ДО и если можно, добавляем ПОСЛЕ
-    if pagesBeforeThis < numberOfPageButtonsBeforeThis:
-        diff = numberOfPageButtonsBeforeThis - pagesBeforeThis
-        numberOfPageButtonsBeforeThis -= diff
-
-        if numberOfPageButtonsAfterThis + diff < pagesAfterThis:
-            numberOfPageButtonsAfterThis += diff
-        else:
-            numberOfPageButtonsAfterThis = pagesAfterThis
-
-    #зеркально
-    if pagesAfterThis < numberOfPageButtonsAfterThis:
-        diff = numberOfPageButtonsAfterThis - pagesAfterThis
-        numberOfPageButtonsAfterThis -= diff
-
-        if numberOfPageButtonsBeforeThis + diff < pagesBeforeThis:
-            numberOfPageButtonsBeforeThis += diff
-        else:
-            numberOfPageButtonsBeforeThis = pagesBeforeThis
-
-
-    #формируем массив кнопок
-    pageButtons = [prevButton]
-    for pageNum in range(page - numberOfPageButtonsBeforeThis, page + numberOfPageButtonsAfterThis + 1):
-        if pageNum == page:
-            pageButtons.append(PageButton('active', '#', str(pageNum)))
-        else:
-            pageButtons.append(PageButton('', str(pageNum), str(pageNum)))
-    pageButtons.append(nextButton)
-
-    return pageButtons
+from baraholka.service import *
 
 
 
 @app.route('/')
 @app.route('/<int:page>')
 def mainPage(page = None):
-    if page is not None:
-        if page == 1:
-            return redirect('/')
-    else:
-        page = 1
-
-    searchEntry = request.args.get('search')
-    if searchEntry is not None:
-        pass
-
-
-    desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
-    desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
-
-    dbCur.execute(f"SELECT id, name, price FROM advert ORDER BY datetime desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
-    result = dbCur.fetchall()
-
-    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
+    return advertsListPage(page, 'mainPage', request, fromCurrentUserOnly = False)
 
 
 
@@ -307,12 +88,19 @@ def registerPost():
 
 
 
+
+
 @app.route('/profile/')
 def profilePage():
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-    return render_template('profile.html', user = current_user)
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
+    return render_template('profile.html', user = current_user, searchCategories = getSearchCategories(searchCategory))
 
 
 @app.route('/profile/', methods = ['post'])
@@ -334,19 +122,12 @@ def newAdvertPage():
         return redirect('/login/')
 
     searchEntry = request.args.get('search')
-    if searchEntry is not None:
-        pass
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
 
 
-    dbCur.execute(f"SELECT name FROM category ORDER BY name")
-    result = dbCur.fetchall()
-    #TODO если none?
-
-    categories = []
-    for r in result:
-        categories.append(r[0])
-
-    return render_template('advcreate.html', categories = categories)
+    return render_template('advcreate.html', searchCategories = getSearchCategories(), categories = getCategories(searchCategory))
 
 
 @app.route('/newadvert/', methods = ['post'])
@@ -362,22 +143,17 @@ def newAdvertPost():
 
     uploadedFiles = request.files.getlist("file")
 
-
-    if price != '':
+    if price == '':
+        price = '0'
+    else:
         try:
-            priceFloat = float(price.replace(',', '.'))
+            float(price.replace(',', '.'))
         except: #если цена как-то неправильно написана
             return render_template('blank.html', text = 'Ошибка')
 
-    #если цена не указана, или указана нулевая, записываем NULL
-    if price == '' or priceFloat == 0:
-        price = 'NULL'
+    price = price.replace('.', ',')
 
-    else:
-        price = price.replace('.', ',')
-        price = "'" + price + "'"
-
-    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.get_id()}', '{description}', {price}, '{category}', '{address}', 'ok') RETURNING id")
+    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.get_id()}', '{description}', '{price}', '{category}', '{address}', 'ok') RETURNING id")
     dbCon.commit()
     result = dbCur.fetchone()
     advertId = result[0]
@@ -409,25 +185,7 @@ def myAdvertsPage(page = None):
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-    if page is not None:
-        if page == 1:
-            return redirect('/myadverts/')
-    else:
-        page = 1
-
-
-    searchEntry = request.args.get('search')
-    if searchEntry is not None:
-        pass
-
-
-    desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
-    desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
-
-    dbCur.execute(f"SELECT id, name, price FROM advert WHERE user_id = '{current_user.id}' ORDER BY datetime desc OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
-    result = dbCur.fetchall()
-
-    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages))
+    return advertsListPage(page, 'myAdvertsPage', request, fromCurrentUserOnly = True)
 
 
 
@@ -442,6 +200,12 @@ def myAdvertsPage(page = None):
 def advertPage(advertdId = None):
     if advertdId == None:
         return redirect('/')
+
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
 
     dbCur.execute(f"SELECT name, description, price, category, address, datetime, user_id FROM advert WHERE id = '{advertdId}'")
     result = dbCur.fetchone()
@@ -469,4 +233,4 @@ def advertPage(advertdId = None):
         showControlButtons = False
 
 
-    return render_template('adv.html', advert = advert, showControlButtons = showControlButtons)
+    return render_template('adv.html', advert = advert, showControlButtons = showControlButtons, searchCategories = getSearchCategories(searchCategory))
