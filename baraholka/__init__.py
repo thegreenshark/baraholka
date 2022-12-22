@@ -8,9 +8,12 @@ import os
 import uuid
 import math
 from PIL import Image
+import hashlib
 
 
 ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}
+PASSWORD_SALT1 = 'FA3YVNgG'
+PASSWORD_SALT2 = '2dN4T5NK'
 
 
 app = Flask(__name__)

@@ -26,7 +26,9 @@ def loginPost():
     if email is None or password is None:
         return render_template('blank.html', text = 'Ошибка')
 
-    dbCur.execute(f"SELECT id FROM appuser WHERE email = '{email}' AND password = '{password}'")
+    passwordHash = PASSWORD_SALT1 + hashlib.sha256(password.encode()).hexdigest() + PASSWORD_SALT2
+
+    dbCur.execute(f"SELECT id FROM appuser WHERE email = '{email}' AND password = '{passwordHash}'")
     result = dbCur.fetchone()
 
     if result is None:
@@ -73,7 +75,9 @@ def registerPost():
     if result is not None:
         return render_template('register.html', errorMsg = 'Пользователь с таким email уже зарегистрирован', prefilledFirstname = firstname, prefilledLastname = lastname, prefilledEmail = email, prefilledPhone = phone)
 
-    dbCur.execute(f"INSERT INTO appuser (email, password, firstname, lastname, phone) VALUES ('{email}', '{password}', '{firstname}', '{lastname}', '{phone}') returning id")
+    passwordHash = PASSWORD_SALT1 + hashlib.sha256(password.encode()).hexdigest() + PASSWORD_SALT2
+
+    dbCur.execute(f"INSERT INTO appuser (email, password, firstname, lastname, phone) VALUES ('{email}', '{passwordHash}', '{firstname}', '{lastname}', '{phone}') returning id")
     dbCon.commit()
     result = dbCur.fetchone()
 
