@@ -5,7 +5,12 @@ from baraholka.service import *
 @app.route('/')
 @app.route('/<int:page>')
 def mainPage(page = None):
-    return advertsListPage(page, 'mainPage', request, fromCurrentUserOnly = False)
+    if current_user.is_authenticated and current_user.isModerator: #модератор видит только ожидающие одобрения
+        allowedStates = [AdvertState.waitingAppoval]
+    else:
+        allowedStates = [AdvertState.approved]
+
+    return advertsListPage(page, 'mainPage', request, fromCurrentUserOnly = False, allowedStates = allowedStates)
 
 
 
@@ -26,7 +31,7 @@ def loginPost():
     if email is None or password is None:
         return render_template('blank.html', text = 'Ошибка')
 
-    passwordHash = PASSWORD_SALT1 + hashlib.sha256(password.encode()).hexdigest() + PASSWORD_SALT2
+    passwordHash =  hashlib.sha256((PASSWORD_SALT1 + password + PASSWORD_SALT2).encode()).hexdigest()
 
     dbCur.execute(f"SELECT id FROM appuser WHERE email = '{email}' AND password = '{passwordHash}'")
     result = dbCur.fetchone()
@@ -75,7 +80,7 @@ def registerPost():
     if result is not None:
         return render_template('register.html', errorMsg = 'Пользователь с таким email уже зарегистрирован', prefilledFirstname = firstname, prefilledLastname = lastname, prefilledEmail = email, prefilledPhone = phone)
 
-    passwordHash = PASSWORD_SALT1 + hashlib.sha256(password.encode()).hexdigest() + PASSWORD_SALT2
+    passwordHash =  hashlib.sha256((PASSWORD_SALT1 + password + PASSWORD_SALT2).encode()).hexdigest()
 
     dbCur.execute(f"INSERT INTO appuser (email, password, firstname, lastname, phone) VALUES ('{email}', '{passwordHash}', '{firstname}', '{lastname}', '{phone}') returning id")
     dbCon.commit()
@@ -125,6 +130,9 @@ def newAdvertPage():
     if not current_user.is_authenticated:
         return redirect('/login/')
 
+    if current_user.isModerator:
+        return redirect('/')
+
     searchEntry = request.args.get('search')
     searchCategory = request.args.get('category')
     if searchEntry is not None or searchCategory is not None:
@@ -138,6 +146,9 @@ def newAdvertPage():
 def newAdvertPost():
     if not current_user.is_authenticated:
         return redirect('/login/')
+
+    if current_user.isModerator:
+        return redirect('/')
 
     name = request.form.get('name')
     description = request.form.get('description')
@@ -157,7 +168,7 @@ def newAdvertPost():
 
     price = price.replace('.', ',')
 
-    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, status) VALUES ('{name}', '{current_user.get_id()}', '{description}', '{price}', '{category}', '{address}', 'ok') RETURNING id")
+    dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, state) VALUES ('{name}', '{current_user.get_id()}', '{description}', '{price}', '{category}', '{address}', '{AdvertState.waitingAppoval}') RETURNING id")
     dbCon.commit()
     result = dbCur.fetchone()
     advertId = result[0]
@@ -176,7 +187,7 @@ def newAdvertPost():
         dbCon.commit()
 
 
-    return redirect('/')
+    return redirect(f'/advert/{advertId}/')
 
 
 
@@ -189,7 +200,12 @@ def myAdvertsPage(page = None):
     if not current_user.is_authenticated:
         return redirect('/login/')
 
-    return advertsListPage(page, 'myAdvertsPage', request, fromCurrentUserOnly = True)
+    if current_user.isModerator:
+        return redirect('/')
+
+    allowedStates = [AdvertState.waitingAppoval, AdvertState.approved, AdvertState.rejected, AdvertState.archived]
+
+    return advertsListPage(page, 'myAdvertsPage', request, fromCurrentUserOnly = True, allowedStates = allowedStates)
 
 
 
@@ -200,9 +216,9 @@ def myAdvertsPage(page = None):
 
 
 @app.route('/advert/')
-@app.route('/advert/<uuid:advertdId>')
-def advertPage(advertdId = None):
-    if advertdId == None:
+@app.route('/advert/<uuid:advertId>/')
+def advertPage(advertId = None):
+    if advertId == None:
         return redirect('/')
 
     searchEntry = request.args.get('search')
@@ -211,30 +227,89 @@ def advertPage(advertdId = None):
         return redirect(url_for('mainPage', **request.args))
 
 
-    dbCur.execute(f"SELECT name, description, price, category, address, datetime, user_id FROM advert WHERE id = '{advertdId}'")
+    dbCur.execute(f"SELECT name, description, price, category, address, datetime, user_id, state FROM advert WHERE id = '{advertId}'")
     result = dbCur.fetchone()
 
     if result == None:
         return redirect('/')
 
+    #неодобренные или ожидающие объявления могут просматривать только их авторы и модераторы
+    if  result[7] not in [AdvertState.approved, AdvertState.archived] and (not current_user.is_authenticated or (current_user.get_id() != result[6] and not current_user.isModerator)):
+        return redirect('/')
+
     dbCur.execute(f"SELECT firstname, phone FROM appuser WHERE id = '{result[6]}'")
     result2 = dbCur.fetchone()
 
-    dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{advertdId}'")
+    dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{advertId}'")
     result3 = dbCur.fetchall()
 
     imagesPaths = []
     for r in result3:
         imagesPaths.append(r[0])
 
-    advert = AdvertBig(result[0], result[1], result[2], result[3], result[4], result[5], result2[0], result2[1], imagesPaths)
+
+
+    buttonsType = AdvertButtonsType.noButtons
+    if current_user.is_authenticated and current_user.isModerator and result[7] == AdvertState.waitingAppoval:
+        buttonsType = AdvertButtonsType.moderator
+    elif current_user.get_id() == result[6] and result[7] != AdvertState.archived:
+        buttonsType = AdvertButtonsType.owner
+
+    advert = AdvertBig(result[0], result[1], result[2], result[3], result[4], result[5], result2[0], result2[1], result[7], buttonsType, imagesPaths)
+
+    return render_template('adv.html', advert = advert, searchCategories = getSearchCategories(searchCategory))
 
 
 
-    if current_user.get_id() == result[6]:
-        showControlButtons = True
-    else:
-        showControlButtons = False
+
+@app.route('/advert/<uuid:advertId>/', methods = ['post'])
+def advertPost(advertId = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    dbCur.execute(f"SELECT state, user_id FROM advert WHERE id = '{advertId}'")
+    result = dbCur.fetchone()
+
+    if result is None:
+        return redirect('/')
+
+    currentState = result[0]
+    ownerId = result[1]
 
 
-    return render_template('adv.html', advert = advert, showControlButtons = showControlButtons, searchCategories = getSearchCategories(searchCategory))
+    if 'stopSelling' in request.form:
+        if current_user.get_id() == ownerId and currentState != AdvertState.archived:
+            dbCur.execute(f"UPDATE advert SET state = '{AdvertState.archived}' WHERE id = '{advertId}'")
+            dbCon.commit()
+        else:
+            return redirect('/')
+
+
+    elif 'approve' in request.form:
+        if current_user.isModerator and currentState != AdvertState.approved:
+            dbCur.execute(f"UPDATE advert SET state = '{AdvertState.approved}' WHERE id = '{advertId}'")
+            dbCon.commit()
+        else:
+            return redirect('/')
+
+
+    elif 'reject' in request.form:
+        if current_user.isModerator and currentState != AdvertState.rejected:
+            dbCur.execute(f"UPDATE advert SET state = '{AdvertState.rejected}' WHERE id = '{advertId}'")
+            dbCon.commit()
+        else:
+            return redirect('/')
+
+    return redirect(f'/advert/{advertId}/')
+
+
+@app.route('/advert/edit/')
+@app.route('/advert/<uuid:advertId>/edit/')
+def advertEdit(advertId = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if advertId == None:
+        return redirect('/')
+
+    return render_template('adv.html')

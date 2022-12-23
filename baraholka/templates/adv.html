@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 {% endblock %}
+
 {% block scripts %}
     {{super()}}
     <script src="{{url_for('.static', filename='adv/assets/js/jquery.min.js')}}"></script>
@@ -11,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.3.1/js/swiper.jquery.min.js"></script>
     <script src="{{url_for('.static', filename='adv/assets/js/Simple-Slider.js')}}"></script>
 {% endblock %}
+
 {% block styles %}
     {{super()}}
     <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/bootstrap/css/bootstrap.min.css')}}">
@@ -24,7 +26,6 @@
     <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/untitled-3.css')}}">
     <link rel="stylesheet" href="{{url_for('.static', filename='adv/assets/css/untitled.css')}}">
 {% endblock %}
-
 
 {% block html_attribs %} lang="en" {% endblock %}
 
@@ -46,7 +47,7 @@
 
 {% block content %}
     <div style="background: #eeeeee;">
-        {% if current_user.is_authenticated %}
+        {% if not current_user.is_authenticated or current_user.isModerator %}
         <div style="background: #ffffff;box-shadow: 0px 0px 10px 0px rgba(80,94,108,0.71);margin-bottom: 1px;">
             <div class="container" style="padding-left: 0px;padding-right: 0px;width: 1050px;">
                 <div class="row" style="margin-left: 0px;margin-right: 0px;">
@@ -58,7 +59,7 @@
                                 {% endfor %}
                                 </select></div>
                             <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;margin-left: 18px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="{{url_for('.static', filename='index/assets/img/search-icon.png')}}"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 260px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 15px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;" placeholder="Поиск"></div>
-                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 18px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 18px;" href="/login">Профиль</a>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 235px;" href="/login">{% if current_user.isModerator %}Профиль{% else %}Войти{% endif %}</a>
                     </div>
                 </div>
             </div>
@@ -75,7 +76,7 @@
                                 {% endfor %}
                                 </select></div>
                             <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;margin-left: 18px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="{{url_for('.static', filename='index/assets/img/search-icon.png')}}"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 260px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 15px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;" placeholder="Поиск"></div>
-                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 235px;" href="/login">Войти</a>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 18px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 18px;" href="/login">Профиль</a>
                     </div>
                 </div>
             </div>
@@ -101,16 +102,29 @@
                             </ol>
                         </div>
                     </div>
-                    <div class="form-group" style="padding-left: 60px;padding-right: 60px;margin-bottom: 25px;">
+                    <div class="form-group" style="padding-left: 60px;padding-right: 60px;margin-bottom: 0px;">
                         <p style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;margin-right: 0px;">{{advert.name}}</p>
                         <p style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;margin-right: 0px;">{{advert.price}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;">Категория: {{advert.category}}</p>
-                        <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;margin-bottom: 20px;">Выложено {{advert.datetime}}</p>
+                        <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;margin-bottom: 25px;">Выложено {{advert.datetime}}</p>
                         <p style="font-size: 16px;color: rgb(0,0,0);margin-right: 0px;margin-bottom: 20px;">{{advert.description}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 0px;">{{advert.address}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 35px;">{{advert.user_phone}}</p>
+                        {% if advert.state == 0 %}
+                        <p style="font-size: 18px;color: rgb(255,255,255);margin-right: 0px;margin-bottom: 10px;background: #ffb800;text-align: center;margin-top: 10px;padding-top: 5px;padding-bottom: 5px;">Ожидает одобрения</p>
+                        {% elif advert.state == 1 and current_user.is_authenticated and current_user.isModerator %}
+                        <p style="font-size: 18px;color: rgb(255,255,255);margin-right: 0px;margin-bottom: 10px;background: #00b760;text-align: center;margin-top: 10px;padding-top: 5px;padding-bottom: 5px;">Одобрено</p>
+                        {% elif advert.state == 2 %}
+                        <p style="font-size: 18px;color: rgb(255,255,255);margin-right: 0px;margin-bottom: 10px;background: #ff3030;text-align: center;margin-top: 10px;padding-top: 5px;padding-bottom: 5px;">Объявление не одобрено{% if current_user.is_authenticated and not current_user.isModerator %}. Отредактируйте его или снимите с продажи {% endif %}</p>
+                        {% elif advert.state == 3 %}
+                        <p style="font-size: 18px;color: rgb(255,255,255);margin-right: 0px;margin-bottom: 10px;background: #9f9f9f;text-align: center;margin-top: 10px;padding-top: 5px;padding-bottom: 5px;">Снято с продажи</p>
+                        {% endif %}
                     </div>
-                    {% if showControlButtons %}<div class="form-group text-center" style="margin-bottom: -1px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;">Редактировать</button><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 143px;" href="/myadverts/">Снять с продажи</a></div> {% endif %}
+                    {% if advert.buttonsType == 1 %}
+                    <div class="form-group text-center" style="margin-bottom: -1px;margin-top: 25px;"><a class="btn btn-default barahloka-btn" role="button" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;" href="edit">Редактировать</a><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 143px;" name="stopSelling">Снять с продажи</button></div>
+                    {% elif advert.buttonsType == 2 %}
+                    <div class="form-group text-center" style="margin-bottom: -1px;margin-top: 25px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00b760;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;" name="approve">Одобрить</button><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #ff3030;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 143px;" name="reject">Отклонить</button></div>
+                    {% endif %}
                 </form>
             </section>
         </div>

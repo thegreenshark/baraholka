@@ -9,6 +9,7 @@ import uuid
 import math
 from PIL import Image
 import hashlib
+from enum import Enum
 
 
 ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}

@@ -59,35 +59,46 @@ class User(UserMixin):
 
 
 class Advert():
-    def __init__(self, id, name, price, imagePath = ''):
+    def __init__(self, id, name, price, state, imagePath = ''):
         self.name = name
         self.price = price
-        self.link = '/advert/' + id
-        self.image = AdvImage(imagePath, 270, 185)
+        self.link = '/advert/' + id + '/'
+        self.image = AdvImage(imagePath, 270, 180)
+        self.state = state
 
 
 class AdvertBig():
-    def __init__(self, name, description, price, category, address, datetime:datetime.datetime, userFirstname, userPhone, imagesPaths):
+    def __init__(self, name, description, price, category, address, datetime:datetime.datetime, userFirstname, userPhone, state, buttonsType, imagesPaths):
         self.name = name
         self.description = description
         self.price = formatPrice(price)
         self.category = category
         self.address = address
-        self.datetime = f'{datetime.day}.{datetime.month}.{datetime.year} в {datetime.hour}:{datetime.minute}'
+        self.datetime = f'{str(datetime.day).rjust(2, "0")}.{str(datetime.month).rjust(2, "0")}.{datetime.year} в {str(datetime.hour).rjust(2, "0")}:{str(datetime.minute).rjust(2, "0")}'
         self.user_phone = userFirstname + '⠀✆' + userPhone
+        self.state = state
+        self.buttonsType = buttonsType
 
         self.images = []
         self.indicators = []
         for i in range(len(imagesPaths)):
             self.images.append(AdvImage(imagesPaths[i], 720, 400))
-            self.indicators.append(CarouselIndicator('#carousel-1', i))
 
         if len(self.images) == 0:
             self.images.append(AdvImage('static/index/assets/img/nophoto.png', 720, 400))
-            self.indicators.append(CarouselIndicator(0))
 
         self.images[0].active = 'active'
-        self.indicators[0].active = 'active'
+
+
+        if len(imagesPaths) > 1:
+            for i in range(len(imagesPaths)):
+                self.indicators.append(CarouselIndicator('#carousel-1', i))
+
+            self.indicators[0].active = 'active'
+
+
+
+
 
 
 class AdvImage():
@@ -161,6 +172,20 @@ class SortOption():
 
 
 
+
+class AdvertState():
+    waitingAppoval = 0
+    approved = 1
+    rejected = 2
+    archived = 3
+
+
+class AdvertButtonsType():
+    noButtons = 0
+    owner = 1
+    moderator = 2
+
+
 def formatPrice(price):
     if price is None or price == '':
         return 'Бесплатно'
@@ -175,7 +200,7 @@ def formatPrice(price):
 
 
 
-#в result должны быть id, name, price
+#в result должны быть id, name, price, state
 def getAdvertsGrid(result, desiredAdvertsPerPage):
     advertsGrid = []
 
@@ -197,7 +222,7 @@ def getAdvertsGrid(result, desiredAdvertsPerPage):
             if result2 is not None:
                 imagePath = result2[0]
 
-            row.append(Advert(result[i + j][0], result[i + j][1], formatPrice(result[i + j][2]), imagePath))
+            row.append(Advert(result[i + j][0], result[i + j][1], formatPrice(result[i + j][2]), result[i + j][3], imagePath))
 
         if len(row) > 0:
             advertsGrid.append(row)
@@ -335,7 +360,7 @@ def getSortOptions(currentOption = None):
 
 
 
-def advertsListPage(page, pageName, request, fromCurrentUserOnly):
+def advertsListPage(page, pageName, request, fromCurrentUserOnly, allowedStates = [AdvertState.approved]):
     if page is not None:
         if page == 1:
             return redirect(url_for(pageName, **request.args))
@@ -370,24 +395,37 @@ def advertsListPage(page, pageName, request, fromCurrentUserOnly):
 
 
 
-    where = ''
-    if searchCategory is not None or searchEntry is not None or fromCurrentUserOnly:
-        where = ' WHERE'
+    #формируем секцию WHERE
+    where = ' WHERE'
 
-        if fromCurrentUserOnly:
-            where += f" user_id = '{current_user.id}'"
+    if len(allowedStates) > 0:
+        where += f" ("
 
-        if searchCategory is not None:
-            if where != ' WHERE':
-                where += ' AND'
+        for state in allowedStates:
+            if state != allowedStates[0]:
+                where += ' OR'
+            where += f" state = '{state}'"
 
-            where += f" category = '{searchCategory}'"
+        where += f" )"
 
-        if searchEntry is not None:
-            if where != ' WHERE':
-                where += ' AND'
 
-            where += f" LOWER(name) LIKE LOWER('%{searchEntry}%')"
+    if fromCurrentUserOnly:
+        if where != ' WHERE':
+            where += ' AND'
+        where += f" user_id = '{current_user.id}'"
+
+    if searchCategory is not None:
+        if where != ' WHERE':
+            where += ' AND'
+
+        where += f" category = '{searchCategory}'"
+
+    if searchEntry is not None:
+        if where != ' WHERE':
+            where += ' AND'
+
+        where += f" LOWER(name) LIKE LOWER('%{searchEntry}%')"
+
 
 
 
@@ -395,7 +433,7 @@ def advertsListPage(page, pageName, request, fromCurrentUserOnly):
     desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
 
 
-    dbCur.execute(f"SELECT id, name, price FROM advert{where} ORDER BY {sortSettings.orderBy} {sortSettings.direction} OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
+    dbCur.execute(f"SELECT id, name, price, state FROM advert{where} ORDER BY {sortSettings.orderBy} {sortSettings.direction} OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
 
     return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages, pageName, request.args), searchCategories = getSearchCategories(searchCategory), sortOptions = sortOptions)
