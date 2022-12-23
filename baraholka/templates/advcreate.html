@@ -73,31 +73,31 @@
                 <form method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 1000px;" enctype="multipart/form-data">
                     {% if editAdvert is not defined  %}
 
-                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" style="font-size: 16px;background: #efefef;" required></div>
-                    <div class="form-group"><textarea class="form-control" style="font-size: 16px;background: #efefef;color: rgb(80, 94, 108);height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description"></textarea></div>
-                    <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" style="font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
+                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;" required></div>
+                    <div class="form-group"><textarea class="form-control" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description"></textarea></div>
+                    <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="color: rgb(0,0,0);display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
                             {% for category in categories %}
                             <option {{category.selected}}>{{category.name}}</option>
                             {% endfor %}
-                        </select><input class="form-control" type="number" name="price" placeholder="Цена" style="font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
+                        </select><input class="form-control" type="number" name="price" placeholder="Цена" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
                     <div class="form-group">
-                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
+                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
                     </div>
                     <div class="form-group text-center" style="margin-bottom: 0px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Создать объявление</button></div>
 
                     {% else %}
 
                     <p style="text-align: center;color: rgb(0,0,0);font-size: 18px;font-weight: bold;background: #ffffff;">Редактирование объявления &quot;{{editAdvert.name}}&quot;</p>
-                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" value="{{editAdvert.name}}" style="font-size: 16px;background: #efefef;" required></div>
-                    <div class="form-group"><textarea class="form-control" style="font-size: 16px;background: #efefef;color: rgb(80, 94, 108);height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description">{{editAdvert.description}}</textarea></div>
-                    <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" value="{{editAdvert.address}}" style="font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
+                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" value="{{editAdvert.name}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;" required></div>
+                    <div class="form-group"><textarea class="form-control" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description">{{editAdvert.description}}</textarea></div>
+                    <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" value="{{editAdvert.address}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="color: rgb(0,0,0);display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
                             {% for category in categories %}
                             <option {{category.selected}}>{{category.name}}</option>
                             {% endfor %}
-                        </select><input class="form-control" type="number" name="price" placeholder="Цена" value="{{editAdvert.price}}" style="font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
+                        </select><input class="form-control" type="number" name="price" placeholder="Цена" value="{{editAdvert.price}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
                     <p style="font-size: 16px;color: rgb(0,0,0);">При загрузке фотографий, прежние будут удалены. Если не загружать, прежние останутся без изменений.</p>
                     <div class="form-group">
-                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
+                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
                     </div>
                     <div class="form-group text-center" style="margin-bottom: 0px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Применить изменения</button></div>
 
