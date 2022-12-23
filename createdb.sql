@@ -51,4 +51,4 @@ insert into category values ('Недвижимость');
 insert into category values ('Бытовая техника');
 insert into category values ('Электроника');
 
-insert into appuser (email, password, firstname, lastname, phone, ismoderator) values ('moder@a.b', 'd47186c955ab6efde4dbbfba95255cdb0c47b5277872d3ae7a211266f4e44b24', 'Test', 'Moderator', '+79214561235', 'TRUE')
+insert into appuser (email, password, firstname, lastname, phone, ismoderator) values ('moder@a.b', 'e3dd41df22833108b1d6d5b265f1c07b79f8614cf04117687f0765da3ede4c80', 'Модератор', 'Тестовый', '+79214561235', 'TRUE')

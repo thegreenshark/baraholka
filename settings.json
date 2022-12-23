@@ -1,0 +1,16 @@
+{
+	"debugMode": true,
+	
+	"dbName": "baraholka",
+	"dbUsername": "baraholkaapp",
+	"dbPassword": "---example---",
+	"dbHost": "localhost",
+	"dbPort": 5432,
+	
+	"maxContentLengthMb": 32,
+	"allowedFileTypes": ["png", "jpg", "jpeg", "bmp"],
+	
+	"appSecretKey": "---example---",
+	"userPasswordSalt1": "---example---",
+	"userPasswordSalt2": "---example---"
+ }

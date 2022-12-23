@@ -31,7 +31,7 @@ def loginPost():
     if email is None or password is None:
         return render_template('blank.html', text = 'Ошибка')
 
-    passwordHash =  hashlib.sha256((PASSWORD_SALT1 + password + PASSWORD_SALT2).encode()).hexdigest()
+    passwordHash =  hashlib.sha256((appSettings['userPasswordSalt1'] + password + appSettings['userPasswordSalt2']).encode()).hexdigest()
 
     dbCur.execute(f"SELECT id FROM appuser WHERE email = '{email}' AND password = '{passwordHash}'")
     result = dbCur.fetchone()
@@ -80,7 +80,7 @@ def registerPost():
     if result is not None:
         return render_template('register.html', errorMsg = 'Пользователь с таким email уже зарегистрирован', prefilledFirstname = firstname, prefilledLastname = lastname, prefilledEmail = email, prefilledPhone = phone)
 
-    passwordHash =  hashlib.sha256((PASSWORD_SALT1 + password + PASSWORD_SALT2).encode()).hexdigest()
+    passwordHash =  hashlib.sha256((appSettings['userPasswordSalt1'] + password + appSettings['userPasswordSalt2']).encode()).hexdigest()
 
     dbCur.execute(f"INSERT INTO appuser (email, password, firstname, lastname, phone) VALUES ('{email}', '{passwordHash}', '{firstname}', '{lastname}', '{phone}') returning id")
     dbCon.commit()
@@ -177,7 +177,7 @@ def newAdvertPost():
         print(f'file "{file}"')
         if file.filename != '':
             fileType = file.filename.rsplit('.', 1)[1].lower()
-            if fileType in ALLOWED_FILE_TYPES:
+            if fileType in appSettings['allowedFileTypes']:
                 fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
                 file.save('baraholka/static/userFiles/' + fileName)
 
@@ -402,7 +402,7 @@ def advertEditpost(advertId = None):
     for file in uploadedFiles:
         if file.filename != '':
             fileType = file.filename.rsplit('.', 1)[1].lower()
-            if fileType in ALLOWED_FILE_TYPES:
+            if fileType in appSettings['allowedFileTypes']:
                 numberOfallowedFiles += 1
 
     #если загружены новые фотографии, старые удаляются
@@ -414,7 +414,7 @@ def advertEditpost(advertId = None):
         for file in uploadedFiles:
             if file.filename != '':
                 fileType = file.filename.rsplit('.', 1)[1].lower()
-                if fileType in ALLOWED_FILE_TYPES:
+                if fileType in appSettings['allowedFileTypes']:
                     fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
                     file.save('baraholka/static/userFiles/' + fileName)
 

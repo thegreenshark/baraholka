@@ -10,24 +10,26 @@ import math
 from PIL import Image
 import hashlib
 from enum import Enum
+import json
 
 
-ALLOWED_FILE_TYPES = {'png', 'jpg', 'jpeg', 'bmp'}
-PASSWORD_SALT1 = 'FA3YVNgG'
-PASSWORD_SALT2 = '2dN4T5NK'
+SETTINGS_FILE_NAME = './settings.json'
 
+jsonFile_r = open(SETTINGS_FILE_NAME, 'r', encoding = 'utf-8')
+appSettings = json.load(jsonFile_r)
+jsonFile_r.close()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'baraholka/static/userFiles/'
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #32 мб
+app.config['MAX_CONTENT_LENGTH'] = appSettings['maxContentLengthMb'] * 1024 * 1024 #перевод в байты
 bootstrap = Bootstrap(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-dbCon = psycopg2.connect(database="baraholka", user="baraholkaapp", password="test1234", host="localhost", port=5432)
+dbCon = psycopg2.connect(database = appSettings['dbName'], user = appSettings['dbUsername'], password = appSettings['dbPassword'], host = appSettings['dbHost'], port = appSettings['dbPort'])
 dbCur = dbCon.cursor()
 
-app.secret_key = 'idk just some random shit i guess'
+app.secret_key = appSettings['appSecretKey']
 
 import baraholka.routes
