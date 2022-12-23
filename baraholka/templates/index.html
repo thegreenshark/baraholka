@@ -104,6 +104,11 @@
                 {% endfor %}
             </div>
         </div>
+        {% if advertsGrid|length == 0 %}
+        <div>
+            <p style="text-align: center;font-size: 26px;margin-bottom: 0px;padding-top: 50px;padding-bottom: 50px;">{% if current_user.is_authenticated and current_user.isModerator %}Все объявления просмотрены. Хорошая работа!{% else %}Объявления не найдены{% endif %}</p>
+        </div>
+        {% endif %}
         <div class="text-center">
             <nav>
                 <ul class="pagination">
