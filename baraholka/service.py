@@ -87,18 +87,24 @@ class AdvertBig():
         if len(self.images) == 0:
             self.images.append(AdvImage('static/index/assets/img/nophoto.png', 720, 400))
 
-        self.images[0].active = 'active'
+        self.images[0].active = ' active'
 
 
         if len(imagesPaths) > 1:
             for i in range(len(imagesPaths)):
-                self.indicators.append(CarouselIndicator('#carousel-1', i))
+                self.indicators.append(CarouselIndicator(str(i)))
 
             self.indicators[0].active = 'active'
 
 
 
 
+class EditAdvert():
+    def __init__(self, name, description, price, address):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.address = address
 
 
 class AdvImage():

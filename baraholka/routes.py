@@ -139,7 +139,7 @@ def newAdvertPage():
         return redirect(url_for('mainPage', **request.args))
 
 
-    return render_template('advcreate.html', searchCategories = getSearchCategories(), categories = getCategories(searchCategory))
+    return render_template('advcreate.html', searchCategories = getSearchCategories(searchCategory), categories = getCategories())
 
 
 @app.route('/newadvert/', methods = ['post'])
@@ -181,7 +181,7 @@ def newAdvertPost():
                 fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
                 file.save('baraholka/static/userFiles/' + fileName)
 
-            dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
+                dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
 
     if len(uploadedFiles) > 0:
         dbCon.commit()
@@ -303,6 +303,10 @@ def advertPost(advertId = None):
     return redirect(f'/advert/{advertId}/')
 
 
+
+
+
+
 @app.route('/advert/edit/')
 @app.route('/advert/<uuid:advertId>/edit/')
 def advertEdit(advertId = None):
@@ -312,4 +316,111 @@ def advertEdit(advertId = None):
     if advertId == None:
         return redirect('/')
 
-    return render_template('adv.html')
+
+    dbCur.execute(f"SELECT state, user_id, name, description, address, category, price FROM advert WHERE id = '{advertId}'")
+    result = dbCur.fetchone()
+
+    if result is None:
+        return redirect('/')
+
+    currentState = result[0]
+    ownerId = result[1]
+
+    if current_user.get_id() != ownerId:
+        return redirect('/')
+
+    if currentState == AdvertState.archived:
+        return redirect('/')
+
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
+    price = result[6].split(',')[0].replace(' ', '')
+
+    editAdvert = EditAdvert(result[2], result[3], price, result[4])
+
+    return render_template('advcreate.html', searchCategories = getSearchCategories(searchCategory), categories = getCategories(result[5]), editAdvert = editAdvert)
+
+
+
+
+
+@app.route('/advert/<uuid:advertId>/edit/', methods = ['post'])
+def advertEditpost(advertId = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if advertId == None:
+        return redirect('/')
+
+
+    dbCur.execute(f"SELECT state, user_id, name, description, address, category, price FROM advert WHERE id = '{advertId}'")
+    result = dbCur.fetchone()
+
+    if result is None:
+        return redirect('/')
+
+    currentState = result[0]
+    ownerId = result[1]
+
+    if current_user.get_id() != ownerId:
+        return redirect('/')
+
+    if currentState == AdvertState.archived:
+        return redirect('/')
+
+
+
+    name = request.form.get('name')
+    description = request.form.get('description')
+    address = request.form.get('address')
+    category = request.form.get('category')
+    price = request.form.get('price')
+
+    uploadedFiles = request.files.getlist("file")
+
+    if price == '':
+        price = '0'
+    else:
+        try:
+            float(price.replace(',', '.'))
+        except: #если цена как-то неправильно написана
+            return render_template('blank.html', text = 'Ошибка')
+
+    price = price.replace('.', ',')
+
+    #dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, state) VALUES ('{name}', '{current_user.get_id()}', '{description}', '{price}', '{category}', '{address}', '{AdvertState.waitingAppoval}') RETURNING id")
+    dbCur.execute(f"UPDATE advert SET name = '{name}', description = '{description}', price = '{price}', category = '{category}', address = '{address}', state = '{AdvertState.waitingAppoval}' WHERE id = '{advertId}'")
+    dbCon.commit()
+
+    print(f'sdfsdfsdfsd = {uploadedFiles}')
+
+
+    numberOfallowedFiles = 0
+    for file in uploadedFiles:
+        if file.filename != '':
+            fileType = file.filename.rsplit('.', 1)[1].lower()
+            if fileType in ALLOWED_FILE_TYPES:
+                numberOfallowedFiles += 1
+
+    #если загружены новые фотографии, старые удаляются
+    if numberOfallowedFiles > 0:
+        dbCur.execute(f"DELETE from advert_picture WHERE advert_id = '{advertId}'")
+        dbCon.commit()
+
+
+        for file in uploadedFiles:
+            if file.filename != '':
+                fileType = file.filename.rsplit('.', 1)[1].lower()
+                if fileType in ALLOWED_FILE_TYPES:
+                    fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
+                    file.save('baraholka/static/userFiles/' + fileName)
+
+                    dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
+
+            dbCon.commit()
+
+
+    return redirect(f'/advert/{advertId}/')

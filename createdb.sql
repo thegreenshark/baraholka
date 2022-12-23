@@ -30,7 +30,7 @@ CREATE TABLE advert (
     "category" VARCHAR(256) NOT NULL,
     "address" VARCHAR(512) NOT NULL,
     "datetime" TIMESTAMPTZ NOT NULL DEFAULT LOCALTIMESTAMP NOT NULL,
-    "status" VARCHAR(256) NOT NULL
+    "state" SMALLINT NOT NULL
 );
 
 CREATE TABLE advert_picture (
@@ -50,3 +50,5 @@ insert into category values ('Мотоциклы');
 insert into category values ('Недвижимость');
 insert into category values ('Бытовая техника');
 insert into category values ('Электроника');
+
+insert into appuser (email, password, firstname, lastname, phone, ismoderator) values ('moder@a.b', 'd47186c955ab6efde4dbbfba95255cdb0c47b5277872d3ae7a211266f4e44b24', 'Test', 'Moderator', '+79214561235', 'TRUE')
