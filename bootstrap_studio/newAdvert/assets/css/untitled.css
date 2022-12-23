@@ -1,0 +1,6 @@
+.btn-primary.active, .btn-primary:active {
+  background-color: #265a88;
+  border-color: #245580;
+  border-radius: 18px !important;
+}
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>main</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/Footer-Basic-Footer-Basic.css">
+    <link rel="stylesheet" href="assets/css/Navigation-with-Search-Navigation-with-Search.css">
+    <link rel="stylesheet" href="assets/css/untitled-2.css">
+    <link rel="stylesheet" href="assets/css/untitled-3.css">
+    <link rel="stylesheet" href="assets/css/untitled.css">
+</head>
+
+<body>
+    <div style="background: #eeeeee;">
+        <div style="background: #ffffff;box-shadow: 0px 0px 10px 0px rgba(80,94,108,0.71);margin-bottom: 1px;">
+            <div class="container" style="padding-left: 0px;padding-right: 0px;width: 1050px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-lg-12 col-md-12 text-center" style="padding-left: 0px;padding-right: 0px;margin-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;" src="assets/img/baraholkaBlack.png"></a>
+                        <form class="form-inline" id="filter-form" target="_self" style="background: rgba(255,255,255,0);padding-right: 0px;padding-left: 0px;display: inline-block;height: 38px;padding-top: 0px;margin-left: 18px;">
+                            <div class="form-group"><select class="form-control" style="display: inline-block;width: 160px;font-size: 14px;background: #e3e3e3;margin-left: 0px;height: 38px;text-align: left;padding-left: 5px;padding-right: 12px;box-shadow: 0px 0px;border-radius: 10px;border-style: none;color: rgb(64,64,64);" name="category" onchange="this.form.submit()">
+                                    <option value="12" selected="">Недвижимость</option>
+                                    <option value="13">This is item 2</option>
+                                    <option value="14">This is item 3</option>
+                                </select></div>
+                            <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;margin-left: 18px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="assets/img/search-icon.png"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 260px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 15px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;" placeholder="Поиск"></div>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 18px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 18px;" href="/login">Профиль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <div class="container" style="padding-left: 0px;padding-right: 0px;width: 900px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-lg-12 col-md-12" style="padding-left: 0px;padding-right: 0px;margin-bottom: 0px;">
+                        <p style="display: inline-block;margin-bottom: 0px;font-size: 16px;margin-left: 2px;">Сортировка</p><select style="display: inline-block;width: 250px;font-size: 14px;background: #d2d2d2;text-align: left;padding-left: 5px;padding-right: 12px;box-shadow: 0px 0px;border-radius: 10px;border-style: none;height: 30px;color: rgb(50,50,50);margin-left: 12px;" name="sortby" form="filter-form" onchange="this.form.submit()">
+                            <option value="12" selected="">По дате</option>
+                            <option value="13">This is item 2</option>
+                            <option value="14">This is item 3</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="padding-top: 0px;background: rgba(211,211,211,0);margin-top: 15px;">
+            <div class="container" style="padding-right: 0px;padding-left: 0px;width: 900px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-xs-4" style="height: 300px;padding-top: 15px;padding-bottom: 15px;width: 300px;border: 1px solid #e6e6e6;background: #ffffff;">
+                        <div class="text-center" style="max-height: 180px;height: 180px;"><a href="#"><img style="width: 270px;max-width: 270px;max-height: 180px;height: 217px;border-style: solid;border-color: #dadada;" src="assets/img/nophoto.png" width="270" height="180"></a></div>
+                        <div><a href="#" style="color: rgb(0,0,0);font-size: 16px;">
+                                <p class="text-nowrap" style="font-size: 16px;max-height: 45px;overflow: hidden;text-overflow: ellipsis;/*display: -webkit-box;*//*-webkit-line-clamp: 2;*//*line-clamp: 2;*//*-webkit-box-orient: vertical;*/margin-bottom: 0px;margin-top: 6px;/*color: rgb(0, 0, 0);*/">Name</p>
+                            </a>
+                            <p style="font-size: 16px;max-height: 23px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;font-weight: bold;margin-top: 6px;">price<br></p>
+                            <p style="font-size: 16px;max-height: 23px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;margin-top: 6px;font-weight: bold;text-align: center;background: #9f9f9f;color: rgb(255,255,255);">price<br></p>
+                        </div>
+                    </div>
+                    <div class="col-xs-4" style="height: 300px;padding-top: 15px;padding-bottom: 15px;width: 300px;border: 1px solid #e6e6e6;background: #ffffff;">
+                        <div class="text-center" style="max-height: 185px;height: 185px;"><a href="#"><img style="width: 270px;max-width: 270px;max-height: 185px;height: 185px;border-style: solid;border-color: #dadada;" src="assets/img/nophoto.png" width="270" height="185"></a></div>
+                        <div style="height: 45px;max-height: 45px;"><a href="#" style="color: rgb(0,0,0);font-size: 16px;">
+                                <p style="font-size: 16px;max-height: 45px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;margin-top: 7px;height: 45px;/*color: rgb(0, 0, 0);*/">Name<br>name</p>
+                            </a>
+                            <p style="font-size: 16px;max-height: 23px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;height: 23px;font-weight: bold;margin-top: 7px;">price<br></p>
+                        </div>
+                    </div>
+                    <div class="col-xs-4" style="height: 300px;padding-top: 15px;padding-bottom: 15px;width: 300px;border: 1px solid #e6e6e6;background: #ffffff;">
+                        <div class="text-center" style="max-height: 185px;height: 185px;"><a href="#"><img style="width: 270px;max-width: 270px;max-height: 185px;height: 185px;border-style: solid;border-color: #dadada;" src="assets/img/nophoto.png" width="270" height="185"></a></div>
+                        <div style="height: 45px;max-height: 45px;"><a href="#" style="color: rgb(0,0,0);font-size: 16px;">
+                                <p style="font-size: 16px;max-height: 45px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;margin-top: 7px;height: 45px;/*color: rgb(0, 0, 0);*/">Name<br>name</p>
+                            </a>
+                            <p style="font-size: 16px;max-height: 23px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;line-clamp: 2;-webkit-box-orient: vertical;margin-bottom: 0px;height: 23px;font-weight: bold;margin-top: 7px;">price<br></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <nav>
+                <ul class="pagination">
+                    <li class="disabled"><a aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                    <li class="active"><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li class="disabled"><a href="#">3</a></li>
+                    <li class="disabled"><a href="#">4</a></li>
+                    <li class="disabled"><a href="#">5</a></li>
+                    <li class="disabled"><a aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <footer class="text-center" style="background: #ffffff;padding-top: 10px;padding-bottom: 10px;">
+        <p style="margin-bottom: 0px;margin-top: 0px;font-size: 15px;">Baraholka 2022</p>
+    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>
