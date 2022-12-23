@@ -105,7 +105,7 @@
                         <p style="font-size: 18px;color: rgb(0,0,0);font-weight: bold;margin-right: 0px;">{{advert.price}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;">Категория: {{advert.category}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;margin-left: 0px;margin-bottom: 25px;">Выложено {{advert.datetime}}</p>
-                        <p style="font-size: 16px;color: rgb(0,0,0);margin-right: 0px;margin-bottom: 20px;">{{advert.description}}</p>
+                        <p style="font-size: 16px;color: rgb(0,0,0);margin-right: 0px;margin-bottom: 20px;">{{advert.description | safe}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 0px;">{{advert.address}}</p>
                         <p style="font-size: 16px;color: rgb(120,120,120);margin-right: 0px;display: inline-block;margin-left: 35px;">{{advert.user_phone}}</p>
                         {% if advert.state == 0 %}

@@ -255,7 +255,7 @@ def advertPage(advertId = None):
     elif current_user.get_id() == result[6] and result[7] != AdvertState.archived:
         buttonsType = AdvertButtonsType.owner
 
-    advert = AdvertBig(result[0], result[1], result[2], result[3], result[4], result[5], result2[0], result2[1], result[7], buttonsType, imagesPaths)
+    advert = AdvertBig(result[0], result[1].replace('\n', '<br>'), result[2], result[3], result[4], result[5], result2[0], result2[1], result[7], buttonsType, imagesPaths)
 
     return render_template('adv.html', advert = advert, searchCategories = getSearchCategories(searchCategory))
 

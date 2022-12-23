@@ -432,7 +432,8 @@ def advertsListPage(page, pageName, request, fromCurrentUserOnly, allowedStates 
 
         where += f" LOWER(name) LIKE LOWER('%{searchEntry}%')"
 
-
+        if where == ' WHERE':
+            where =''
 
 
     desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
