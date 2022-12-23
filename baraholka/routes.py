@@ -424,3 +424,21 @@ def advertEditpost(advertId = None):
 
 
     return redirect(f'/advert/{advertId}/')
+
+
+
+@app.route('/test/')
+def index():
+    return render_template("test.html")
+
+@app.route('/test/requestUpdate', methods=['POST'])
+def testPage():
+    textInput = request.form.get('textInput')
+    resultDict = {
+        'success': 'true',
+        'valuesArray':
+        [textInput, textInput * 2, textInput * 3]
+    }
+
+    if request.method == "POST":
+        return json.dumps(resultDict)

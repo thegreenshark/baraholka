@@ -1,0 +1,57 @@
+{% extends "bootstrap/base.html" %}
+
+{% block html_attribs %} lang="en"{% endblock %}
+
+{% block metas %}
+    <meta charset="utf-8">
+{% endblock %}
+{% block scripts %}
+    {{super()}}
+    <script src="{{url_for('.static', filename='adv/assets/js/jquery.min.js')}}"></script>
+
+    <script>
+        /* отправка формы через ajax */
+        function sendAjaxForm(formId, elementId) {
+            var form = $("#" + formId);
+            $.ajax({
+                type: "post",
+                url: "requestUpdate",
+                data: form.serialize(),
+
+                success: function (response) {
+                    var json = jQuery.parseJSON(response);
+                    $('#' + elementId).html("");
+                    $(json.valuesArray).each(function(index, value){
+                        $('#' + elementId).append("<p>" + value + "</p>");
+                    });
+
+                    // if (json.success == 'true') {
+                    //     console.log("Data received successfully");
+                    // }
+                    // else
+                    // {
+                    //     console.log("Data receive error");
+                    // }
+                },
+
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        //отправка формы каждую секунду
+        $(document).ready( setInterval(function () { sendAjaxForm("form1", "divToChange"); }, 1000) );
+    </script>
+ {% endblock %}
+
+
+{% block content %}
+<form id="form1">
+    <input type="text" name = 'textInput'>
+</form>
+
+
+
+<div id="divToChange"></div>
+{% endblock %}
