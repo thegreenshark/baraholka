@@ -4,6 +4,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 {% endblock %}
+
+{% block scripts %}
+    {{super()}}
+    <script src="{{url_for('.static', filename='advcreate/assets/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('.static', filename='advcreate/assets/bootstrap/js/bootstrap.min.js')}}"></script>
+
+    <script>
+        function photoSelection() {
+            $("#mainPhotoSelection").html("");
+            if (Object.keys(document.forms['advForm']['photoUpload'].files).length > 1){ //если загружено 2 и более фотографий
+                $("#mainPhotoSelection").append('<p style="margin-left: 195px;font-size: 16px;color: rgb(0,0,0);">Выберите фотографию, которая будет отображаться на обложке объявления:</p>');
+
+                $(document.forms['advForm']['photoUpload'].files).each(function(index, file){
+                    $("#mainPhotoSelection").append('<div class="radio" style="margin-left: 195px;margin-top: 0px;margin-bottom: 0px;"><label style="color: rgb(0,0,0);font-size: 16px;"><input name="photoSelectRadio" value="' + file.name + '" type="radio" style="width: 15px;height: 15px;margin-top: 3px;">' + file.name + '</label></div>');
+                });
+            }
+        }
+    </script>
+{% endblock %}
+
 {% block styles %}
     {{super()}}
     <link rel="stylesheet" href="{{url_for('.static', filename='advcreate/assets/bootstrap/css/bootstrap.min.css')}}">
@@ -15,13 +35,8 @@
     <link rel="stylesheet" href="{{url_for('.static', filename='advcreate/assets/css/untitled-3.css')}}">
     <link rel="stylesheet" href="{{url_for('.static', filename='advcreate/assets/css/untitled.css')}}">
 {% endblock %}
-{% block scripts %}
-    <script src="{{url_for('.static', filename='advcreate/assets/js/jquery.min.js')}}"></script>
-    <script src="{{url_for('.static', filename='advcreate/assets/bootstrap/js/bootstrap.min.js')}}"></script>
-    {{super()}}
-{% endblock %}
 
-{% block html_attribs %} lang="ru" {% endblock %}
+{% block html_attribs %} lang="en" {% endblock %}
 
 {% block title %}Создать объявление{% endblock %}
 
@@ -67,39 +82,44 @@
         {% endif %}
 
 
-
         <div style="margin-top: 0px;padding-top: 0px;">
             <section class="login-clean" style="background: rgba(255,255,255,0);margin-top: 0px;padding-bottom: 65px;padding-top: 35px;">
-                <form method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 1000px;" enctype="multipart/form-data">
+                <form id = "advForm" method="post" style="box-shadow: 0px 0px 8px rgba(80,94,108,0.59);max-width: 1000px;width: 1000px;" enctype="multipart/form-data">
                     {% if editAdvert is not defined  %}
 
-                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;" required></div>
-                    <div class="form-group"><textarea class="form-control" style="text-indent: 0px;color: rgb(0,0,0);font-size: 16px;background: #efefef;height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description"></textarea></div>
+                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;"></div>
+                    <div class="form-group"><textarea class="form-control" style="color: rgb(0,0,0);text-indent: 0px;font-size: 16px;background: #efefef;height: 125px;max-width: 920px;" placeholder="Описание" name="description"></textarea></div>
                     <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="color: rgb(0,0,0);display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
-                            {% for category in categories %}
-                            <option {{category.selected}}>{{category.name}}</option>
-                            {% endfor %}
-                        </select><input class="form-control" type="number" name="price" placeholder="Цена" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
-                    <div class="form-group">
-                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
+                        {% for category in categories %}
+                        <option {{category.selected}}>{{category.name}}</option>
+                        {% endfor %}
+                    </select><input class="form-control" type="number" name="price" placeholder="Цена" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input id="photoUpload" type="file" accept="image/png, image/jpg, image/jpeg, image/bmp" onchange="photoSelection()" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
                     </div>
-                    <div class="form-group text-center" style="margin-bottom: 0px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Создать объявление</button></div>
+                    <div id="mainPhotoSelection"style="margin-top: 10px;">
+
+                    </div>
+                    <div class="form-group text-center" style="margin-bottom: 0px;margin-top: 20px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Создать объявление</button></div>
 
                     {% else %}
 
                     <p style="text-align: center;color: rgb(0,0,0);font-size: 18px;font-weight: bold;background: #ffffff;">Редактирование объявления &quot;{{editAdvert.name}}&quot;</p>
-                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" value="{{editAdvert.name}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;" required></div>
-                    <div class="form-group"><textarea class="form-control" style="text-indent: 0px;color: rgb(0,0,0);font-size: 16px;background: #efefef;height: 125px;max-width: 920px;min-width: 920px;" placeholder="Описание" name="description">{{editAdvert.description}}</textarea></div>
+                    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Название" value="{{editAdvert.name}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;"></div>
+                    <div class="form-group"><textarea class="form-control" style="color: rgb(0,0,0);text-indent: 0px;font-size: 16px;background: #efefef;height: 125px;max-width: 920px;" placeholder="Описание" name="description">{{editAdvert.description}}</textarea></div>
                     <div class="form-group"><input class="form-control" type="text" name="address" placeholder="Адрес" value="{{editAdvert.address}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 475px;display: inline-block;" required><select class="form-control" style="color: rgb(0,0,0);display: inline-block;width: 200px;font-size: 16px;background: #efefef;margin-left: 42px;" name="category" required>
-                            {% for category in categories %}
-                            <option {{category.selected}}>{{category.name}}</option>
-                            {% endfor %}
-                        </select><input class="form-control" type="number" name="price" placeholder="Цена" value="{{editAdvert.price}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
+                        {% for category in categories %}
+                        <option {{category.selected}}>{{category.name}}</option>
+                        {% endfor %}
+                    </select><input class="form-control" type="number" name="price" placeholder="Цена" value="{{editAdvert.price}}" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;width: 175px;display: inline-block;margin-left: 25px;" min="0"></div>
                     <p style="font-size: 16px;color: rgb(0,0,0);">При загрузке фотографий, прежние будут удалены. Если не загружать, прежние останутся без изменений.</p>
-                    <div class="form-group">
-                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input type="file" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <p style="font-size: 16px;color: rgb(0,0,0);display: inline-block;">Загрузите фотографии:</p><input id="photoUpload" type="file" accept="image/png, image/jpg, image/jpeg, image/bmp" onchange="photoSelection()" style="color: rgb(0,0,0);font-size: 16px;background: #efefef;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;padding-right: 10px;display: inline-block;width: 723px;margin-left: 13px;" multiple="" name="file">
                     </div>
-                    <div class="form-group text-center" style="margin-bottom: 0px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Применить изменения</button></div>
+                    <div id="mainPhotoSelection"style="margin-top: 10px;">
+
+                    </div>
+                    <div class="form-group text-center" style="margin-bottom: 0px;margin-top: 20px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 0px;width: 920px;">Применить изменения</button></div>
 
                     {% endif %}
                 </form>

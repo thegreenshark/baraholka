@@ -155,8 +155,18 @@ def newAdvertPost():
     address = request.form.get('address')
     category = request.form.get('category')
     price = request.form.get('price')
-
+    chosenFile = request.form.get('photoSelectRadio')
     uploadedFiles = request.files.getlist("file")
+
+
+    allowedFiles = []
+
+    for file in uploadedFiles:
+        if file.filename != '':
+            fileType = file.filename.rsplit('.', 1)[1].lower()
+            if fileType in appSettings['allowedFileTypes']:
+                allowedFiles.append(file)
+
 
     if price == '':
         price = '0'
@@ -173,17 +183,30 @@ def newAdvertPost():
     result = dbCur.fetchone()
     advertId = result[0]
 
-    for file in uploadedFiles:
-        print(f'file "{file}"')
+
+
+
+    for file in allowedFiles:
         if file.filename != '':
             fileType = file.filename.rsplit('.', 1)[1].lower()
             if fileType in appSettings['allowedFileTypes']:
                 fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
                 file.save('baraholka/static/userFiles/' + fileName)
 
-                dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
+                main = 'FALSE'
+                if len(allowedFiles) < 2:
+                    main = 'TRUE'
+                else:
+                    if chosenFile is None:
+                        if file == allowedFiles[0]:
+                            main = 'TRUE'
+                    else:
+                        if chosenFile == file.filename:
+                            main = 'TRUE'
 
-    if len(uploadedFiles) > 0:
+                dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path, main) VALUES ('{advertId}', 'static/userFiles/{fileName}', '{main}')")
+
+    if len(allowedFiles) > 0:
         dbCon.commit()
 
 
@@ -378,8 +401,17 @@ def advertEditpost(advertId = None):
     address = request.form.get('address')
     category = request.form.get('category')
     price = request.form.get('price')
-
+    chosenFile = request.form.get('photoSelectRadio')
     uploadedFiles = request.files.getlist("file")
+
+    allowedFiles = []
+
+    for file in uploadedFiles:
+        if file.filename != '':
+            fileType = file.filename.rsplit('.', 1)[1].lower()
+            if fileType in appSettings['allowedFileTypes']:
+                allowedFiles.append(file)
+
 
     if price == '':
         price = '0'
@@ -391,25 +423,13 @@ def advertEditpost(advertId = None):
 
     price = price.replace('.', ',')
 
-    #dbCur.execute(f"INSERT INTO advert (name, user_id, description, price, category, address, state) VALUES ('{name}', '{current_user.get_id()}', '{description}', '{price}', '{category}', '{address}', '{AdvertState.waitingAppoval}') RETURNING id")
     dbCur.execute(f"UPDATE advert SET name = '{name}', description = '{description}', price = '{price}', category = '{category}', address = '{address}', state = '{AdvertState.waitingAppoval}' WHERE id = '{advertId}'")
     dbCon.commit()
 
-    print(f'sdfsdfsdfsd = {uploadedFiles}')
-
-
-    numberOfallowedFiles = 0
-    for file in uploadedFiles:
-        if file.filename != '':
-            fileType = file.filename.rsplit('.', 1)[1].lower()
-            if fileType in appSettings['allowedFileTypes']:
-                numberOfallowedFiles += 1
-
     #если загружены новые фотографии, старые удаляются
-    if numberOfallowedFiles > 0:
+    if len(allowedFiles) > 0:
         dbCur.execute(f"DELETE from advert_picture WHERE advert_id = '{advertId}'")
         dbCon.commit()
-
 
         for file in uploadedFiles:
             if file.filename != '':
@@ -418,9 +438,21 @@ def advertEditpost(advertId = None):
                     fileName = str(uuid.uuid4()) + '.' + fileType #сохраняем под уникальным именем
                     file.save('baraholka/static/userFiles/' + fileName)
 
-                    dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path) VALUES ('{advertId}', 'static/userFiles/{fileName}')")
+                    main = 'FALSE'
+                    if len(allowedFiles) < 2:
+                        main = 'TRUE'
+                    else:
+                        if chosenFile is None:
+                            if file == allowedFiles[0]:
+                                main = 'TRUE'
+                        else:
+                            if chosenFile == file.filename:
+                                main = 'TRUE'
 
-            dbCon.commit()
+                    dbCur.execute(f"INSERT INTO advert_picture (advert_id, file_path, main) VALUES ('{advertId}', 'static/userFiles/{fileName}', '{main}')")
+
+
+        dbCon.commit()
 
 
     return redirect(f'/advert/{advertId}/')

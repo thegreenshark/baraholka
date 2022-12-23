@@ -36,7 +36,8 @@ CREATE TABLE advert (
 CREATE TABLE advert_picture (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "advert_id" UUID REFERENCES advert("id"),
-    "file_path" VARCHAR(512) NOT NULL UNIQUE
+    "file_path" VARCHAR(512) NOT NULL UNIQUE,
+    "main" BOOL NOT NULL
 );
 
 
@@ -50,5 +51,7 @@ insert into category values ('Мотоциклы');
 insert into category values ('Недвижимость');
 insert into category values ('Бытовая техника');
 insert into category values ('Электроника');
+insert into category values ('Прочее');
 
-insert into appuser (email, password, firstname, lastname, phone, ismoderator) values ('moder@a.b', 'e3dd41df22833108b1d6d5b265f1c07b79f8614cf04117687f0765da3ede4c80', 'Модератор', 'Тестовый', '+79214561235', 'TRUE')
+insert into appuser (email, password, firstname, lastname, phone, ismoderator) values ('moder@a.b', 'e3dd41df22833108b1d6d5b265f1c07b79f8614cf04117687f0765da3ede4c80', 'Модератор', 'Тестовый', '+79214561235', 'TRUE');
+insert into appuser (email, password, firstname, lastname, phone) values ('user@a.b', 'ac812756790777d89bcc6b065726bee6de99c136ab53e27d17a1d8b3943a19fa', 'Юзер', 'Дефолтный', '+79211593567');

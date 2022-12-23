@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 import datetime
 import psycopg2
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 import os
 import uuid
 import math

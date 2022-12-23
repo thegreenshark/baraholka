@@ -222,7 +222,7 @@ def getAdvertsGrid(result, desiredAdvertsPerPage):
             if i + j >= len(result):
                 break
 
-            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' LIMIT 1")
+            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' AND main = 'TRUE' LIMIT 1")
             result2 = dbCur.fetchone()
             imagePath = ''
             if result2 is not None:
