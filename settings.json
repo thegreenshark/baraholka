@@ -1,5 +1,5 @@
 {
-	"debugMode": true,
+	"debugMode": false,
 	
 	"dbName": "baraholka",
 	"dbUsername": "baraholkaapp",
