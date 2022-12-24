@@ -24,7 +24,7 @@
 
 
 
-    {% block title %}main{% endblock %}
+    {% block title %}Сообщения{% endblock %}
 
 
 
@@ -81,13 +81,9 @@
         <div class="text-center">
             <nav>
                 <ul class="pagination">
-                    <li class="disabled"><a aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
-                    <li class="active"><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li class="disabled"><a href="#">3</a></li>
-                    <li class="disabled"><a href="#">4</a></li>
-                    <li class="disabled"><a href="#">5</a></li>
-                    <li class="disabled"><a aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                    {% for pageButton in pageButtons %}
+                    <li class="{{pageButton.state}}"><a {{pageButton.href}}>{{pageButton.symbol}}</a></li>
+                    {% endfor %}
                 </ul>
             </nav>
         </div>

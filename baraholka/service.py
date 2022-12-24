@@ -39,6 +39,8 @@ class User(UserMixin):
                 break
             except:pass
 
+        print(f'user_loader n = {i}')
+
         if result is None:
             User.id = None
             User.email = None
@@ -262,11 +264,11 @@ def getAdvertsGrid(result, desiredAdvertsPerPage):
 
 
 
-def getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages, pageName, requestArgs = None):
-    if result is None:
+def getPageButtons(page, lenResult, desiredAdvertsPerPage, desiredNumberOfPages, pageName, requestArgs = {}):
+    if lenResult == 0:
         return [PageButton('disabled', '', '<'), PageButton('active', '#', str(page)), PageButton('disabled', '', '>')]
 
-    foundAdvertsNumber = len(result) #сколько найдено объявлений (на этой странице и далее)
+    foundAdvertsNumber = lenResult #сколько найдено объявлений (на этой странице и далее)
 
     if foundAdvertsNumber < desiredAdvertsPerPage:
         advertsAfterThisPage = 0
@@ -459,10 +461,10 @@ def advertsListPage(page, pageName, request, fromCurrentUserOnly, allowedStates 
 
 
     desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
-    desiredAdvertsPerPage = 18 #сколько хотим объявлений на одной странице
+    desiredAdvertsPerPage = 9 #сколько хотим объявлений на одной странице
 
 
     dbCur.execute(f"SELECT id, name, price, state FROM advert{where} ORDER BY {sortSettings.orderBy} {sortSettings.direction} OFFSET {(page - 1) * desiredAdvertsPerPage} LIMIT {desiredAdvertsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
 
-    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, result, desiredAdvertsPerPage, desiredNumberOfPages, pageName, request.args), searchCategories = getSearchCategories(searchCategory), sortOptions = sortOptions)
+    return render_template('index.html', advertsGrid = getAdvertsGrid(result, desiredAdvertsPerPage), pageButtons = getPageButtons(page, len(result), desiredAdvertsPerPage, desiredNumberOfPages, pageName, request.args), searchCategories = getSearchCategories(searchCategory), sortOptions = sortOptions)

@@ -540,9 +540,10 @@ def chatPost(advertId = None, buyerId = None):
 
     dbCur.execute(f"SELECT name, state, user_id FROM advert WHERE id = '{advertId}'")
     result = dbCur.fetchone()
-    advertOwnerId = result[2]
     if result is None or result[1] != AdvertState.approved:
         return redirect('/')
+
+    advertOwnerId = result[2]
 
     if result[2] != current_user.get_id() and current_user.get_id() != buyerId:
         return redirect('/')
@@ -648,25 +649,30 @@ def chastListPage(page = None):
     desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
     desiredChatsPerPage = 10 #сколько хотим чатов на одной странице
 
-    dbCur.execute(f"SELECT DISTINCT ON (advert_id) sender_id, receiver_id, advert_id, datetime, text FROM message WHERE sender_id = '{current_user.get_id()}' OR receiver_id = '{current_user.get_id()}' ORDER BY advert_id, datetime DESC OFFSET {(page - 1) * desiredChatsPerPage} LIMIT {desiredChatsPerPage * desiredNumberOfPages}")
+    dbCur.execute(f"SELECT * FROM (SELECT DISTINCT ON (advert_id) sender_id, receiver_id, advert_id, datetime, text FROM message WHERE sender_id = '{current_user.get_id()}' OR receiver_id = '{current_user.get_id()}' ORDER BY advert_id, datetime DESC) AS s ORDER BY datetime DESC OFFSET {(page - 1) * desiredChatsPerPage} LIMIT {desiredChatsPerPage * desiredNumberOfPages}")
     result = dbCur.fetchall()
 
     chatPreviews = []
+    i = 0
 
     if result is not None:
         for chat in result:
+            if i >= desiredChatsPerPage:
+                break
+
             senderId = chat[0]
             receiverId = chat[1]
             advertId = chat[2]
             msgText = chat[4]
 
-            dbCur.execute(f"SELECT name, state FROM advert WHERE id = '{advertId}'")
+            dbCur.execute(f"SELECT name, state, user_id FROM advert WHERE id = '{advertId}'")
             result2 = dbCur.fetchone()
             advertName = result2[0]
             advertState = result2[1]
+            advertOwnerId = result2[2]
 
-            if advertState != AdvertState.approved:
-                continue
+            # if advertState != AdvertState.approved and advertState != AdvertState.archived:
+            #     continue
 
             dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{advertId}' AND main = 'TRUE' LIMIT 1")
             result3 = dbCur.fetchone()
@@ -687,9 +693,14 @@ def chastListPage(page = None):
                 lastMessagePreview = f'{otherUserName}: '
             lastMessagePreview += msgText
 
-            link = f'/chat/{advertId}/{otherUserId}/'
+            if senderId == advertOwnerId:
+                buyerId = receiverId
+            else:
+                buyerId = senderId
+            link = f'/chat/{advertId}/{buyerId}/'
 
             chatPreviews.append(ChatPreview(advertName, otherUserName, lastMessagePreview, link, imagePath))
+            i += 1
 
 
-    return render_template("chatslist.html", searchCategories = getSearchCategories(searchCategory), chatPreviews = chatPreviews)
+    return render_template("chatslist.html", searchCategories = getSearchCategories(searchCategory), chatPreviews = chatPreviews, pageButtons = getPageButtons(page, len(result), desiredChatsPerPage, desiredNumberOfPages, 'chastListPage') )
