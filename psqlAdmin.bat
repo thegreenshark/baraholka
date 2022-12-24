@@ -1,4 +1,3 @@
-::пароль test1234
 @echo off
 chcp 1251
 PATH C:\Program Files\PostgreSQL\15\bin;%PATH%
