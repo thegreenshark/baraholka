@@ -3,7 +3,7 @@ from baraholka.service import *
 
 
 @app.route('/')
-@app.route('/<int:page>')
+@app.route('/<int:page>/')
 def mainPage(page = None):
     if current_user.is_authenticated and current_user.isModerator: #модератор видит только ожидающие одобрения
         allowedStates = [AdvertState.waitingAppoval]
@@ -218,7 +218,7 @@ def newAdvertPost():
 
 
 @app.route('/myadverts/')
-@app.route('/myadverts/<int:page>')
+@app.route('/myadverts/<int:page>/')
 def myAdvertsPage(page = None):
     if not current_user.is_authenticated:
         return redirect('/login/')
@@ -271,16 +271,20 @@ def advertPage(advertId = None):
         imagesPaths.append(r[0])
 
 
+    linkToChat='/'
 
     buttonsType = AdvertButtonsType.noButtons
     if current_user.is_authenticated and current_user.isModerator and result[7] == AdvertState.waitingAppoval:
         buttonsType = AdvertButtonsType.moderator
-    elif current_user.get_id() == result[6] and result[7] != AdvertState.archived:
+    elif current_user.is_authenticated and not current_user.isModerator and current_user.get_id() == result[6] and result[7] != AdvertState.archived:
         buttonsType = AdvertButtonsType.owner
+    elif current_user.is_authenticated and not current_user.isModerator and current_user.get_id() != result[6]:
+        buttonsType = AdvertButtonsType.registeredUser
+        linkToChat = f'/chat/{advertId}/{current_user.get_id()}/'
 
     advert = AdvertBig(result[0], result[1].replace('\n', '<br>'), result[2], result[3], result[4], result[5], result2[0], result2[1], result[7], buttonsType, imagesPaths)
 
-    return render_template('adv.html', advert = advert, searchCategories = getSearchCategories(searchCategory))
+    return render_template('adv.html', advert = advert, searchCategories = getSearchCategories(searchCategory), linkToChat = linkToChat)
 
 
 
@@ -339,6 +343,7 @@ def advertEdit(advertId = None):
     if advertId == None:
         return redirect('/')
 
+    advertId = str(advertId)
 
     dbCur.execute(f"SELECT state, user_id, name, description, address, category, price FROM advert WHERE id = '{advertId}'")
     result = dbCur.fetchone()
@@ -378,6 +383,7 @@ def advertEditpost(advertId = None):
     if advertId == None:
         return redirect('/')
 
+    advertId = str(advertId)
 
     dbCur.execute(f"SELECT state, user_id, name, description, address, category, price FROM advert WHERE id = '{advertId}'")
     result = dbCur.fetchone()
@@ -460,17 +466,230 @@ def advertEditpost(advertId = None):
 
 
 @app.route('/test/')
-def index():
+def testPage():
     return render_template("test.html")
 
 @app.route('/test/requestUpdate', methods=['POST'])
-def testPage():
+def testPost():
     textInput = request.form.get('textInput')
     resultDict = {
-        'success': 'true',
+        'success': True,
         'valuesArray':
         [textInput, textInput * 2, textInput * 3]
     }
 
-    if request.method == "POST":
-        return json.dumps(resultDict)
+    return json.dumps(resultDict)
+
+
+
+
+
+
+@app.route('/chat/<uuid:advertId>/<uuid:buyerId>/')
+def chatPage(advertId = None, buyerId = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if current_user.isModerator:
+        return redirect('/')
+
+    if advertId is None or buyerId is None:
+        return redirect('/chat/')
+
+    buyerId = str(buyerId)
+    advertId = str(advertId)
+
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
+    dbCur.execute(f"SELECT name, state, user_id FROM advert WHERE id = '{advertId}'")
+    result = dbCur.fetchone()
+    if result is None or result[1] != AdvertState.approved:
+        return redirect('/')
+
+    if result[2] != current_user.get_id() and current_user.get_id() != buyerId:
+        return redirect('/')
+
+    advertName = result[0]
+    advertLink = f'/advert/{advertId}/'
+
+    return render_template("chat.html", searchCategories = getSearchCategories(searchCategory), advertName = advertName, advertLink = advertLink)
+
+
+
+@app.route('/chat/<uuid:advertId>/<uuid:buyerId>/update', methods=['POST'])
+def chatPost(advertId = None, buyerId = None):
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if current_user.isModerator:
+        return redirect('/')
+
+    if advertId is None or buyerId is None:
+        return redirect('/')
+
+    buyerId = str(buyerId)
+    advertId = str(advertId)
+
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
+    dbCur.execute(f"SELECT name, state, user_id FROM advert WHERE id = '{advertId}'")
+    result = dbCur.fetchone()
+    advertOwnerId = result[2]
+    if result is None or result[1] != AdvertState.approved:
+        return redirect('/')
+
+    if result[2] != current_user.get_id() and current_user.get_id() != buyerId:
+        return redirect('/')
+
+    messagesUpdated = False #если появилось новое(ые) сообщение(ия) (либо то, которое этим запросом отправил текущий пользователь, либо от другого пользователя)
+
+    messageInput = request.form.get('messageInput')
+    lastMessageTimestamp = request.form.get('lastMessageTimestamp')
+
+    if messageInput is not None and messageInput != '':
+        if current_user.get_id() == advertOwnerId:
+            receiver_id = buyerId
+        else:
+            receiver_id = advertOwnerId
+        dbCur.execute(f"INSERT INTO message (sender_id, receiver_id, advert_id, text) VALUES ('{current_user.get_id()}', '{receiver_id}', '{advertId}', '{messageInput}')")
+        dbCon.commit()
+        messagesUpdated = True
+
+
+
+    if lastMessageTimestamp is None:
+        messagesUpdated = True
+    else:
+        dbCur.execute(f"SELECT datetime FROM message WHERE (sender_id = '{buyerId}' OR sender_id = '{advertOwnerId}') AND (receiver_id = '{buyerId}' OR receiver_id = '{advertOwnerId}') AND advert_id = '{advertId}' ORDER BY datetime DESC LIMIT 1")
+        result5 = dbCur.fetchone()
+
+        if result5 is not None and result5[0].timestamp() > float(lastMessageTimestamp):
+            messagesUpdated = True
+
+
+
+    resultDict = {'messagesUpdated': messagesUpdated}
+
+    if messagesUpdated:
+        resultDict['messages'] = []
+
+        dbCur.execute(f"SELECT firstname FROM appuser WHERE id = '{buyerId}'")
+        result2 = dbCur.fetchone()
+        buyerFirstName = result2[0]
+
+        dbCur.execute(f"SELECT firstname FROM appuser WHERE id = '{advertOwnerId}'")
+        result4 = dbCur.fetchone()
+        advertOwnerFirstName = result4[0]
+
+        dbCur.execute(f"SELECT text, datetime, sender_id FROM message WHERE (sender_id = '{buyerId}' OR sender_id = '{advertOwnerId}') AND (receiver_id = '{buyerId}' OR receiver_id = '{advertOwnerId}') AND advert_id = '{advertId}' ORDER BY datetime ASC")
+        result3 = dbCur.fetchall()
+
+        if result3 is not None:
+            for msg in result3:
+                if msg[2] == buyerId:
+                    senderFirstName = buyerFirstName
+                else:
+                    senderFirstName = advertOwnerFirstName
+
+                if msg[2] == current_user.get_id():
+                    style = MessageStyle.byThisUser
+                else:
+                    style = MessageStyle.byOtherUser
+
+
+                datetime = f'{str(msg[1].day).rjust(2, "0")}.{str(msg[1].month).rjust(2, "0")}.{msg[1].year} в {str(msg[1].hour).rjust(2, "0")}:{str(msg[1].minute).rjust(2, "0")}'
+
+                resultDict['messages'].append({
+                    'text': msg[0],
+                    'datetime': datetime,
+                    'senderFirstname': senderFirstName,
+                    'style': style
+                })
+
+        resultDict['lastMessageTimestamp'] = result3[-1][1].timestamp()
+
+    return json.dumps(resultDict)
+
+
+
+
+
+
+
+@app.route('/chat/')
+@app.route('/chat/<int:page>/')
+def chastListPage(page = None):
+    if page is not None:
+        if page == 1:
+            return redirect('/chat/')
+    else:
+        page = 1
+
+
+    if not current_user.is_authenticated:
+        return redirect('/login/')
+
+    if current_user.isModerator:
+        return redirect('/')
+
+    searchEntry = request.args.get('search')
+    searchCategory = request.args.get('category')
+    if searchEntry is not None or searchCategory is not None:
+        return redirect(url_for('mainPage', **request.args))
+
+
+
+    desiredNumberOfPages = 5 #сколько хотим кнопок навигации по страницам
+    desiredChatsPerPage = 10 #сколько хотим чатов на одной странице
+
+    dbCur.execute(f"SELECT DISTINCT ON (advert_id) sender_id, receiver_id, advert_id, datetime, text FROM message WHERE sender_id = '{current_user.get_id()}' OR receiver_id = '{current_user.get_id()}' ORDER BY advert_id, datetime DESC OFFSET {(page - 1) * desiredChatsPerPage} LIMIT {desiredChatsPerPage * desiredNumberOfPages}")
+    result = dbCur.fetchall()
+
+    chatPreviews = []
+
+    if result is not None:
+        for chat in result:
+            senderId = chat[0]
+            receiverId = chat[1]
+            advertId = chat[2]
+            msgText = chat[4]
+
+            dbCur.execute(f"SELECT name, state FROM advert WHERE id = '{advertId}'")
+            result2 = dbCur.fetchone()
+            advertName = result2[0]
+            advertState = result2[1]
+
+            if advertState != AdvertState.approved:
+                continue
+
+            dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{advertId}' AND main = 'TRUE' LIMIT 1")
+            result3 = dbCur.fetchone()
+            imagePath = result3[0]
+
+            if current_user.get_id() == senderId:
+                idToSearch = receiverId
+            else:
+                idToSearch = senderId
+            dbCur.execute(f"SELECT firstname, id FROM appuser WHERE id = '{idToSearch}'")
+            result4 = dbCur.fetchone()
+            otherUserName = result4[0]
+            otherUserId = result4[1]
+
+            if senderId == current_user.get_id():
+                lastMessagePreview = 'Вы: '
+            else:
+                lastMessagePreview = f'{otherUserName}: '
+            lastMessagePreview += msgText
+
+            link = f'/chat/{advertId}/{otherUserId}/'
+
+            chatPreviews.append(ChatPreview(advertName, otherUserName, lastMessagePreview, link, imagePath))
+
+
+    return render_template("chatslist.html", searchCategories = getSearchCategories(searchCategory), chatPreviews = chatPreviews)

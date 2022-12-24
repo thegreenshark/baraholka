@@ -1,0 +1,180 @@
+{% extends "bootstrap/base.html" %}
+
+{% block metas %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+{% endblock %}
+
+{% block scripts %}
+    {{super()}}
+    <script src="{{url_for('.static', filename='chat/assets/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('.static', filename='chat/assets/bootstrap/js/bootstrap.min.js')}}"></script>
+
+    <script>
+        var prevSendTime = 0; //время последнего запроса
+        var communicationIsProcess = false; //запрос в данный момент обрабатывается
+
+        function sendAjaxForm(sendMsg) {
+            var dataToSend;
+
+            if (sendMsg == true) { //шлем всё форму с сообщением
+                dataToSend = $("#sendMessageForm").serialize();
+                $("#sendMessageForm").trigger('reset');
+            }
+            else { //шлем только время последнего сообщения
+                 dataToSend = 'lastMessageTimestamp=' + $("#lastMessageTimestamp").val()
+            }
+
+
+            communicationIsProcess = true
+            $.ajax({
+                type: "post",
+                url: "update",
+                data: dataToSend,
+
+                success: function (response) {
+                    communicationIsProcess = false
+                    prevSendTime = Date.now()
+                    var responseJson = jQuery.parseJSON(response);
+
+                    if (responseJson.messagesUpdated == true) { //если есть новые сообщения, обновляем список сообщений
+                        // console.log("Messages updated");
+
+                        $("#chatContainer").html("");
+
+                        $(responseJson.messages).each(function(index, msg){
+                            if (msg.style == 1) {
+                                $("#chatContainer").append('<div class="row" style="margin-left: 0px;margin-right: 0px;margin-bottom: 0px;padding-top: 15px;"><div class="col-lg-8 col-md-8 col-sm-8 col-xs-8" style="background: #dedede;border-radius: 25px;border-bottom-left-radius: 0px;padding: 10px;padding-left: 15px;padding-bottom: 3px;padding-top: 5px;"><p style="font-size: 14px;color: rgb(0,0,0);margin-bottom: 0px;font-weight: bold;">' + msg.senderFirstname + '</p><p style="font-size: 16px;color: rgb(0,0,0);margin-bottom: 0px;">' + msg.text + '<br></p><p style="font-size: 12px;color: rgb(61,61,61);margin-bottom: 0px;text-align: right;padding-right: 12px;">' + msg.datetime + '</p></div></div>');
+                            }
+                            else {
+                                $("#chatContainer").append('<div class="row" style="margin-left: 0px;margin-right: 0px;margin-bottom: 0px;padding-top: 15px;"><div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-8 col-xs-offset-4" style="background: #a4d9ff;border-radius: 25px;padding: 10px;padding-left: 15px;padding-bottom: 3px;border-bottom-right-radius: 0px;padding-top: 10px;"><p style="font-size: 16px;color: rgb(0,0,0);margin-bottom: 0px;">' + msg.text + '<br></p><p style="font-size: 12px;color: rgb(61,61,61);margin-bottom: 0px;text-align: right;padding-right: 12px;">' + msg.datetime + '</p></div></div>');
+                            }
+                        });
+
+                        $("#lastMessageTimestamp").val(responseJson.lastMessageTimestamp); //обновляем время последнего сообщения
+                        $("#chatContainer").scrollTop(function() { return this.scrollHeight; }); //прокрутка в самый низ
+
+                        // console.log($("#lastMessageTimestamp").val())
+                    }
+                    // else {
+                    //     console.log("No message updaetes");
+                    // }
+                },
+
+                error: function (error) {
+                    communicationIsProcess = false
+                    console.log(error);
+                }
+            });
+        }
+
+
+        //периодически шлем запросы, чтобы проверить, если ли новые сообщения
+        function periodicalCheck() {
+            //шлем только если сейчас не обрабатывается запрос и с момента последнего запроса прошло более секунды
+            if (communicationIsProcess == false && Date.now() - prevSendTime > 1000){
+                sendAjaxForm(false);
+            }
+        }
+
+        //переопределить поведение кнопки "Отправить"
+        $(document).ready(function () {
+            $("#sendMessageForm").submit(function( event ) {
+              sendAjaxForm(true);
+              event.preventDefault();
+            });
+        });
+        $(document).ready( setInterval(function () { periodicalCheck(); }, 500) ); //периодически шлем запросы
+        $(document).ready(function () {
+            periodicalCheck(); //шлем запрос сразу после загрузки
+        });
+    </script>
+{% endblock %}
+
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/bootstrap/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/Footer-Basic-Footer-Basic.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/Login-Form-Clean-Login-Form-Clean.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/Navigation-with-Search-Navigation-with-Search.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/untitled-2.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/untitled-3.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='chat/assets/css/untitled.css')}}">
+{% endblock %}
+
+{% block html_attribs %} lang="ru" {% endblock %}
+
+{% block title %}Чат{% endblock %}
+
+
+
+
+
+
+
+
+
+{% block content %}
+    <div style="background: #eeeeee;">
+        <div style="background: #ffffff;box-shadow: 0px 0px 10px 0px rgba(80,94,108,0.71);margin-bottom: 1px;">
+            <div class="container" style="padding-left: 0px;padding-right: 0px;width: 1050px;">
+                <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                    <div class="col-lg-12 col-md-12 text-center" style="padding-left: 0px;padding-right: 0px;margin-bottom: 0px;"><a href="/" style="padding-bottom: 0px;padding-top: 0px;margin-left: 0px;display: inline-block;"><img style="height: 64px;width: 170px;margin-left: 0px;display: inline-block;" src="{{url_for('.static', filename='index/assets/img/baraholkaBlack.png')}}"></a>
+                        <form class="form-inline" id="filter-form" target="_self" style="background: rgba(255,255,255,0);padding-right: 0px;padding-left: 0px;display: inline-block;height: 38px;padding-top: 0px;margin-left: 18px;">
+                            <div class="form-group"><select class="form-control" style="display: inline-block;width: 160px;font-size: 14px;background: #e3e3e3;margin-left: 0px;height: 38px;text-align: left;padding-left: 5px;padding-right: 12px;box-shadow: 0px 0px;border-radius: 10px;border-style: none;color: rgb(64,64,64);" name="category" onchange="this.form.submit()">
+                                {% for category in searchCategories %}
+                                <option {{category.selected}}>{{category.name}}</option>
+                                {% endfor %}
+                                </select></div>
+                            <div class="form-group" style="background: #e3e3e3;border-radius: 99px;border: 2px none #eeeeee;margin-left: 18px;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 99px;border-style: none;text-shadow: 0px 0px;margin-right: 6px;padding-top: 7px;padding-bottom: 7px;padding-left: 15px;padding-right: 14px;margin-left: 0px;display: inline-block;"><img style="width: 23px;height: 23px;display: inline-block;" src="{{url_for('.static', filename='index/assets/img/search-icon.png')}}"></button><input class="form-control search-field" type="search" id="search-field-2" name="search" style="width: 260px;border-radius: 99px;box-shadow: 0px 0px rgba(255,255,255,0);margin-left: 0px;font-size: 15px;height: 38px;display: inline-block;background: #e3e3e3;border-style: none;border-color: #eeeeee;" placeholder="Поиск"></div>
+                        </form><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;margin-right: -2px;display: inline-block;margin-left: 18px;" href="/newadvert/">Создать объявление</a><a class="btn btn-default text-nowrap barahloka-btn" role="button" style="font-size: 15px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-left: 18px;" href="/login">Профиль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div style="margin-top: 0px;padding-bottom: 0px;padding-top: 15px;">
+            <section class="login-clean" style="background: rgba(255,255,255,0);margin-top: 0px;padding: 0px;padding-top: 0px;padding-bottom: 0px;">
+                <form style="max-width: 1000px;width: 700px;box-shadow: 0px 0px 0px rgba(80,94,108,0.59);border-radius: 0px;padding: 0px;padding-left: 35px;padding-right: 35px;padding-top: 15px;padding-bottom: 15px;"><a href="{{advertLink}}" style="color: rgb(0,0,0);font-size: 18px;">{{advertName}}</a></form>
+            </section>
+        </div>
+        <div style="background: rgba(211,211,211,0);padding-bottom: 0px;padding-top: 0px;">
+            <div class="container" id="chatContainer" style="padding: 20px;width: 700px;background: #ffffff;overflow-y: scroll;padding-top: 0px;padding-bottom: 15px;height: 700px;margin: auto;">
+
+
+                <!-- <div class="row" style="margin-left: 0px;margin-right: 0px;margin-bottom: 0px;padding-top: 15px;">
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8" style="background: #dedede;border-radius: 25px;border-bottom-left-radius: 0px;padding: 10px;padding-left: 15px;padding-bottom: 3px;padding-top: 5px;">
+                        <p style="font-size: 14px;color: rgb(0,0,0);margin-bottom: 0px;font-weight: bold;">Username</p>
+                        <p style="font-size: 16px;color: rgb(0,0,0);margin-bottom: 0px;">text text text text<br></p>
+                        <p style="font-size: 12px;color: rgb(61,61,61);margin-bottom: 0px;text-align: right;padding-right: 12px;">11.11.1111 в 11:11</p>
+                    </div>
+                </div>
+
+
+                <div class="row" style="margin-left: 0px;margin-right: 0px;margin-bottom: 0px;padding-top: 15px;">
+                    <div class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-8 col-xs-offset-4" style="background: #a4d9ff;border-radius: 25px;padding: 10px;padding-left: 15px;padding-bottom: 3px;border-bottom-right-radius: 0px;padding-top: 10px;">
+                        <p style="font-size: 16px;color: rgb(0,0,0);margin-bottom: 0px;">text text text text<br></p>
+                        <p style="font-size: 12px;color: rgb(61,61,61);margin-bottom: 0px;text-align: right;padding-right: 12px;">11.11.1111 в 11:11</p>
+                    </div>
+                </div> -->
+
+
+            </div>
+        </div>
+        <div style="margin-top: 0px;padding-bottom: 15px;">
+            <section class="login-clean" style="background: rgba(255,255,255,0);margin-top: 0px;padding-top: 0px;padding-bottom: 0px;">
+                <form id="sendMessageForm" style="max-width: 1000px;width: 700px;box-shadow: 0px 0px 0px rgba(80,94,108,0.59);border-radius: 0px;padding: 20px;padding-bottom: 15px;padding-top: 15px;">
+                    <input type="hidden" id="lastMessageTimestamp" name="lastMessageTimestamp" value="0">
+                    <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" maxlength="4096" name="messageInput" placeholder="Сообщение" style="font-size: 16px;background: #efefef;display: inline-block;border-radius: 12px;margin-bottom: 0px;border-style: none;height: 38px;width: 80%;"><button class="btn btn-default barahloka-btn" type="submit" style="font-size: 16px;color: rgb(255,255,255);background: #00a5db;border-radius: 12px;padding-top: 8px;padding-bottom: 8px;padding-right: 16px;padding-left: 16px;border-style: none;text-shadow: 0px 0px;display: inline-block;margin-bottom: 3px;height: 38px;margin-left: 12px;">Отправить</button></div>
+                </form>
+            </section>
+        </div>
+    </div>
+    <footer class="text-center" style="background: #ffffff;padding-top: 10px;padding-bottom: 10px;">
+        <p style="margin-bottom: 0px;margin-top: 0px;font-size: 15px;">Baraholka 2022</p>
+    </footer>
+
+
+{% endblock %}
+

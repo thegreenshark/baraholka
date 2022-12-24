@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS message;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS advert_picture;
 DROP TABLE IF EXISTS advert;
@@ -23,15 +24,16 @@ CREATE TABLE appuser (
 
 CREATE TABLE advert (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    "user_id" UUID REFERENCES appuser("id")NOT NULL,
+    "user_id" UUID REFERENCES appuser("id") NOT NULL,
     "name" VARCHAR(256) NOT NULL,
-    "description" VARCHAR(2048),
+    "description" VARCHAR(4096),
     "price" MONEY NOT NULL,
     "category" VARCHAR(256) NOT NULL,
     "address" VARCHAR(512) NOT NULL,
-    "datetime" TIMESTAMPTZ NOT NULL DEFAULT LOCALTIMESTAMP NOT NULL,
+    "datetime" TIMESTAMPTZ NOT NULL DEFAULT LOCALTIMESTAMP,
     "state" SMALLINT NOT NULL
 );
+
 
 CREATE TABLE advert_picture (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -45,6 +47,15 @@ CREATE TABLE category (
     "name" VARCHAR(256) PRIMARY KEY
 );
 
+
+CREATE TABLE message (
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "sender_id" UUID REFERENCES appuser("id") NOT NULL,
+    "receiver_id" UUID REFERENCES appuser("id") NOT NULL,
+    "advert_id" UUID REFERENCES advert("id")  NOT NULL,
+    "datetime" TIMESTAMPTZ NOT NULL DEFAULT LOCALTIMESTAMP,
+    "text" VARCHAR(4096)
+);
 
 insert into category values ('Автомобили');
 insert into category values ('Мотоциклы');

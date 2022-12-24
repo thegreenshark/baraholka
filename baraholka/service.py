@@ -31,8 +31,13 @@ class User(UserMixin):
     @staticmethod
     @login_manager.user_loader
     def loadById(id):
-        dbCur.execute(f"SELECT * FROM appuser WHERE id = '{id}'")
-        result = dbCur.fetchone()
+        n = 10
+        for i in range(n):
+            try:
+                dbCur.execute(f"SELECT * FROM appuser WHERE id = '{id}'")
+                result = dbCur.fetchone()
+                break
+            except:pass
 
         if result is None:
             User.id = None
@@ -178,6 +183,17 @@ class SortOption():
 
 
 
+class ChatPreview():
+    def __init__(self, advertName, otherUserName, lastMessagePreview, link, imagePath = ''):
+        self.image = AdvImage(imagePath, 128, 87)
+        self.advertName = advertName
+        self.otherUserName = otherUserName
+        self.link = link
+        self.lastMessagePreview = lastMessagePreview
+
+
+
+
 
 class AdvertState():
     waitingAppoval = 0
@@ -190,6 +206,12 @@ class AdvertButtonsType():
     noButtons = 0
     owner = 1
     moderator = 2
+    registeredUser = 3
+
+
+class MessageStyle():
+    byThisUser = 0
+    byOtherUser = 1
 
 
 def formatPrice(price):
@@ -219,7 +241,7 @@ def getAdvertsGrid(result, desiredAdvertsPerPage):
         row = []
 
         for j in range(3):
-            if i + j >= len(result):
+            if i + j >= len(result) or i + j > desiredAdvertsPerPage - 1 :
                 break
 
             dbCur.execute(f"SELECT file_path FROM advert_picture WHERE advert_id = '{result[i + j][0]}' AND main = 'TRUE' LIMIT 1")

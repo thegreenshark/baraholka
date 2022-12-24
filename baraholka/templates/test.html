@@ -25,7 +25,7 @@
                         $('#' + elementId).append("<p>" + value + "</p>");
                     });
 
-                    // if (json.success == 'true') {
+                    // if (json.success == true) {
                     //     console.log("Data received successfully");
                     // }
                     // else
@@ -40,6 +40,13 @@
             });
         }
 
+        // /* переопределить поведение кнопки "Отправить" */
+        // $(document).ready(function () {
+        //     $("#form1" ).submit(function( event ) {
+        //       sendAjaxForm("form1", "msg");
+        //       event.preventDefault();
+        //     });
+        // });
         //отправка формы каждую секунду
         $(document).ready( setInterval(function () { sendAjaxForm("form1", "divToChange"); }, 1000) );
     </script>

@@ -82,7 +82,7 @@
                 {% for row in advertsGrid %}
                 <div class="row" style="margin-left: 0px;margin-right: 0px;">
                     {% for advert in row %}
-                    <div class="col-xs-4" style="height: 300px;padding-top: 15px;padding-bottom: 15px;width: 300px;border: 1px solid #e6e6e6;background: #ffffff;">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="height: 300px;padding-top: 15px;padding-bottom: 15px;width: 300px;border: 1px solid #e6e6e6;background: #ffffff;">
                         <div class="text-center" style="max-height: 180px;height: 180px;"><a href="{{advert.link}}">
                                 <img style="width: {{advert.image.w}}px;max-width: 270px;max-height: 180px;height: {{advert.image.h}}px;border: 0px solid #dadada ;" src="{{advert.image.path}}" width="270" height="180">
                         </a></div>
